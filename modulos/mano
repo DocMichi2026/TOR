@@ -1,0 +1,1191 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TO Study: sistema muscular y tendinoso de la mano.">
+<title>Sistema muscular y tendinoso de la mano | TO Study</title>
+
+<style>
+:root{
+ --navy:#12345a;--blue:#1769aa;--sky:#eaf5fc;
+ --pale:#f4f9fd;--ink:#23364b;--muted:#687b8f;
+ --line:#dce7f0;--teal:#168b91;
+ --shadow:0 12px 32px rgba(24,65,102,.08);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{
+ margin:0;background:#f7fafd;color:var(--ink);
+ font-family:Inter,"Segoe UI",Arial,sans-serif;line-height:1.68
+}
+a{color:var(--blue);text-decoration:none}
+a:hover{text-decoration:underline}
+button,input,select{font:inherit}
+.topbar{
+ height:70px;background:rgba(255,255,255,.96);
+ border-bottom:1px solid var(--line);display:flex;
+ align-items:center;justify-content:space-between;
+ padding:0 max(5vw,22px);position:sticky;top:0;
+ z-index:20;backdrop-filter:blur(12px)
+}
+.brand{display:flex;align-items:center;gap:11px;font-weight:800;color:var(--navy)}
+.brand-mark{
+ width:39px;height:39px;border-radius:12px;
+ background:linear-gradient(145deg,#1769aa,#43a6c9);
+ color:white;display:grid;place-items:center;font-weight:900
+}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:1.5px}
+.toplinks{display:flex;gap:22px;font-size:13px;font-weight:650}
+.toplinks a{color:#496178}
+.layout{
+ max-width:1440px;margin:auto;display:grid;
+ grid-template-columns:250px minmax(0,1fr);
+ gap:28px;padding:30px 25px
+}
+.sidebar{
+ position:sticky;top:95px;align-self:start;
+ background:white;border:1px solid var(--line);
+ border-radius:16px;padding:17px 13px;
+ max-height:calc(100vh - 115px);overflow:auto
+}
+.side-label{
+ font-size:10px;letter-spacing:1.4px;color:#8a9aab;
+ font-weight:800;margin:8px 10px 12px
+}
+.sidebar a{
+ display:flex;gap:10px;align-items:center;
+ padding:8px 10px;border-radius:9px;color:#52677c;
+ font-size:12px;margin:2px 0
+}
+.sidebar a:hover,.sidebar a.active{
+ background:var(--sky);color:var(--blue);
+ text-decoration:none;font-weight:700
+}
+.sidebar .num{font-size:10px;color:#91a4b6;width:18px}
+main{min-width:0}
+.hero{
+ background:linear-gradient(120deg,#12345a,#1769aa 68%,#2d91b8);
+ border-radius:24px;color:white;padding:42px;
+ position:relative;overflow:hidden;box-shadow:var(--shadow)
+}
+.hero:after{
+ content:"";position:absolute;width:280px;height:280px;
+ border:1px solid rgba(255,255,255,.17);
+ border-radius:50%;right:-65px;top:-105px;
+ box-shadow:0 0 0 35px rgba(255,255,255,.04),
+ 0 0 0 75px rgba(255,255,255,.035)
+}
+.eyebrow{font-size:11px;letter-spacing:2px;font-weight:800;color:#bce7fa}
+.hero h1{font-size:clamp(29px,4vw,43px);line-height:1.12;max-width:730px;margin:12px 0}
+.hero p{color:#e0eff8;max-width:650px}
+.pills{display:flex;gap:9px;flex-wrap:wrap}
+.pill{
+ font-size:11px;border:1px solid rgba(255,255,255,.25);
+ border-radius:30px;padding:6px 11px;color:#e9f6fc
+}
+.meta{display:flex;gap:20px;flex-wrap:wrap;margin-top:22px;color:#d5e9f5;font-size:12px}
+.notice{
+ background:#fff9eb;border:1px solid #f2dfb5;color:#725b2c;
+ border-radius:12px;padding:14px 16px;font-size:13px;margin:22px 0
+}
+.section{margin-top:34px;scroll-margin-top:95px}
+.section-head{margin-bottom:17px}
+.kicker{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);font-weight:800}
+h2{font-size:25px;line-height:1.25;color:var(--navy);margin:5px 0 8px}
+h3{font-size:17px;color:var(--navy);margin:0 0 9px}
+h4{font-size:14px;color:var(--blue);margin:17px 0 6px}
+.lead{color:var(--muted);margin:0;max-width:850px;font-size:14px}
+.card{
+ background:white;border:1px solid var(--line);
+ border-radius:18px;padding:23px;box-shadow:var(--shadow);margin:14px 0
+}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.info{background:var(--pale);border:1px solid #e1edf6;border-radius:13px;padding:16px}
+.info strong{color:var(--navy)}
+.info p{font-size:13px;margin:6px 0 0;color:#586d81}
+ul,ol{padding-left:21px}
+li{margin:5px 0}
+p{margin:8px 0}
+.small{font-size:12px;color:var(--muted)}
+table{border-collapse:collapse;width:100%;font-size:13px;margin:13px 0}
+th{background:#edf5fb;color:#244b70;text-align:left}
+th,td{padding:11px 12px;border:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:#fbfdff}
+.table-wrap{overflow-x:auto}
+.tag{
+ display:inline-block;padding:3px 8px;background:#eaf5fc;
+ color:#1769aa;border-radius:20px;font-size:10px;font-weight:750
+}
+.callout{
+ border-left:4px solid var(--teal);background:#eef9f8;
+ padding:14px 17px;border-radius:0 12px 12px 0;
+ margin:15px 0;font-size:13px
+}
+.warning{border-left-color:#d49a35;background:#fff8eb}
+.muscle{border:1px solid var(--line);border-radius:14px;padding:17px;background:white}
+.muscle h3{font-size:15px}
+.muscle p{font-size:13px;color:#5c7084}
+.function{font-size:12px;color:#1769aa;font-weight:700;margin-top:8px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.btn{
+ border:0;border-radius:10px;padding:10px 15px;
+ background:var(--blue);color:white;font-weight:700;
+ font-size:12px;cursor:pointer
+}
+.btn.secondary{background:#eaf3fa;color:var(--navy)}
+.btn:hover{filter:brightness(.96)}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+ outline:3px solid #75b9e8;outline-offset:3px
+}
+.flashcard{
+ min-height:170px;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;text-align:center;
+ background:linear-gradient(135deg,#eff7fc,#fff);
+ border:1px solid #d9e8f3;border-radius:16px;padding:25px;cursor:pointer
+}
+.flashcard .hint{font-size:10px;letter-spacing:1px;color:var(--teal);font-weight:800}
+.flashcard h3{font-size:21px;margin:10px 0}
+.flashcard p{color:#526b81;font-size:14px}
+.quiz-q{padding:17px 0;border-bottom:1px solid var(--line)}
+.quiz-q:last-child{border:0}
+.quiz-q p{font-weight:700;color:var(--navy)}
+.quiz-q label{display:block;font-size:13px;padding:6px 0;color:#53697e;cursor:pointer}
+.result{padding:13px;border-radius:10px;font-weight:700;margin-top:15px;display:none}
+.progress{height:7px;background:#e6eef5;border-radius:10px;overflow:hidden;margin:12px 0}
+.progress span{
+ display:block;height:100%;background:linear-gradient(90deg,#1769aa,#36a4b8);
+ width:0;transition:.3s
+}
+#study-checklist label{
+ display:flex;align-items:center;gap:9px;padding:10px;
+ background:#f6fafe;border-radius:9px;font-size:13px;color:#52677c
+}
+#study-checklist input{accent-color:var(--blue);width:16px;height:16px}
+select{
+ padding:11px;border:1px solid var(--line);border-radius:10px;
+ background:white;color:var(--ink);max-width:100%
+}
+footer{text-align:center;color:#8a9bad;font-size:11px;padding:35px 15px}
+.backtop{
+ position:fixed;right:22px;bottom:20px;border:0;
+ background:var(--navy);color:white;border-radius:50%;
+ width:42px;height:42px;cursor:pointer;box-shadow:var(--shadow);display:none
+}
+@media(max-width:980px){
+ .layout{grid-template-columns:1fr;padding:20px}
+ .sidebar{position:relative;top:0;max-height:none;display:flex;
+ gap:5px;overflow-x:auto;white-space:nowrap;padding:10px}
+ .side-label{display:none}.sidebar a{flex:0 0 auto}.sidebar .num{display:none}
+}
+@media(max-width:650px){
+ .topbar{padding:0 16px}.toplinks{gap:10px}
+ .toplinks a:nth-child(2),.toplinks a:nth-child(3){display:none}
+ .layout{padding:14px}.hero{padding:30px 23px}
+ .grid2,.grid3{grid-template-columns:1fr}
+ .card{padding:17px}h2{font-size:22px}
+}
+</style>
+</head>
+
+<body>
+<header class="topbar">
+ <a class="brand" href="../../index.html">
+  <span class="brand-mark">TO</span>
+  <span>TO STUDY<small>MIEMBRO SUPERIOR</small></span>
+ </a>
+ <nav class="toplinks" aria-label="Navegación principal">
+  <a href="../../index.html">Inicio</a>
+  <a href="#contenido">Contenido</a>
+  <a href="#evaluacion">Autoevaluación</a>
+ </nav>
+</header>
+
+<div class="layout">
+
+<aside class="sidebar" aria-label="Índice del módulo">
+ <div class="side-label">EN ESTE MÓDULO</div>
+ <a href="#introduccion"><span class="num">01</span>Introducción</a>
+ <a href="#objetivos"><span class="num">02</span>Objetivos</a>
+ <a href="#organizacion"><span class="num">03</span>Organización muscular</a>
+ <a href="#extrinsecos"><span class="num">04</span>Extrínsecos</a>
+ <a href="#intrinsecos"><span class="num">05</span>Intrínsecos</a>
+ <a href="#tendones"><span class="num">06</span>Tendones y poleas</a>
+ <a href="#mecanismo"><span class="num">07</span>Aparato extensor</a>
+ <a href="#funcion"><span class="num">08</span>Biomecánica</a>
+ <a href="#clinica"><span class="num">09</span>Relevancia clínica</a>
+ <a href="#explorador"><span class="num">10</span>Atlas interactivo</a>
+ <a href="#actividades"><span class="num">11</span>Actividades funcionales</a>
+ <a href="#progreso"><span class="num">12</span>Mi progreso</a>
+ <a href="#resumen"><span class="num">13</span>Resumen</a>
+ <a href="#glosario"><span class="num">14</span>Glosario</a>
+ <a href="#flashcards"><span class="num">15</span>Flashcards</a>
+ <a href="#evaluacion"><span class="num">16</span>Cuestionario</a>
+ <a href="#referencias"><span class="num">17</span>Referencias</a>
+</aside>
+
+<main id="contenido">
+
+<section class="hero">
+ <div class="eyebrow">MÓDULO 01 · ANATOMÍA Y BIOMECÁNICA</div>
+ <h1>Sistema muscular y tendinoso de la mano</h1>
+ <p>Comprende cómo los músculos del antebrazo y de la propia mano coordinan sus fuerzas para producir movimiento, estabilidad, prensión y destreza manual.</p>
+ <div class="pills">
+  <span class="pill">Anatomía funcional</span>
+  <span class="pill">Tendones flexores y extensores</span>
+  <span class="pill">Terapia Ocupacional</span>
+ </div>
+ <div class="meta">
+  <span>Lectura estimada: 25–35 min</span>
+  <span>Nivel: formación universitaria</span>
+  <span>Incluye actividades y cuestionario</span>
+ </div>
+</section>
+
+<div class="notice">
+ <strong>Nota académica:</strong> este módulo es material de estudio.
+ Las pruebas físicas, maniobras clínicas y decisiones de tratamiento
+ deben aprenderse y aplicarse con supervisión docente y profesional.
+ Las variaciones anatómicas existen; cuando son relevantes se indican.
+</div>
+
+<section class="section" id="introduccion">
+ <div class="section-head">
+  <div class="kicker">01 · Introducción</div>
+  <h2>La mano como sistema funcional</h2>
+  <p class="lead">La función manual no depende de un músculo aislado, sino de la coordinación entre articulaciones, músculos, tendones, ligamentos, fascias, sensibilidad y control nervioso.</p>
+ </div>
+ <div class="card">
+  <p>La mano permite realizar acciones muy diferentes: sostener objetos, manipular herramientas, escribir, abotonar una prenda y explorar el entorno mediante el tacto. Para conseguirlo combina movimientos amplios y potentes con movimientos pequeños y precisos.</p>
+  <p>Los vientres musculares que generan buena parte de la fuerza de los dedos se encuentran en el antebrazo. Sus tendones llegan a la mano y se insertan en los huesos o se integran en mecanismos tendinosos. Otros músculos tienen tanto su origen como su inserción dentro de la mano y participan en el control fino.</p>
+  <div class="grid2">
+   <div class="info">
+    <strong>Componente extrínseco</strong>
+    <p>Músculos con vientre en el antebrazo y tendones que alcanzan la mano. Aportan gran parte de la fuerza de flexión y extensión.</p>
+   </div>
+   <div class="info">
+    <strong>Componente intrínseco</strong>
+    <p>Músculos ubicados completamente en la mano. Ajustan la posición de los dedos, la oposición del pulgar y la precisión.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="objetivos">
+ <div class="section-head">
+  <div class="kicker">02 · Objetivos</div>
+  <h2>Al finalizar podrás…</h2>
+ </div>
+ <div class="card">
+  <ul>
+   <li>Diferenciar músculos extrínsecos e intrínsecos de la mano.</li>
+   <li>Identificar la función general de los principales flexores y extensores digitales.</li>
+   <li>Explicar la función de lumbricales, interóseos y músculos tenares e hipotenares.</li>
+   <li>Describir la organización básica de las vainas y poleas de los tendones flexores.</li>
+   <li>Explicar cómo los músculos intrínsecos participan en la flexión MCF y extensión interfalángica.</li>
+   <li>Relacionar alteraciones musculotendinosas y nerviosas con cambios funcionales de la mano.</li>
+  </ul>
+ </div>
+</section>
+
+<section class="section" id="organizacion">
+ <div class="section-head">
+  <div class="kicker">03 · Organización</div>
+  <h2>Clasificación de la musculatura</h2>
+  <p class="lead">La clasificación se basa en la ubicación del vientre muscular y de sus inserciones, no simplemente en dónde se observa el movimiento.</p>
+ </div>
+ <div class="table-wrap card">
+  <table>
+   <thead><tr><th>Grupo</th><th>Ubicación</th><th>Ejemplos</th><th>Contribución funcional</th></tr></thead>
+   <tbody>
+    <tr>
+     <td><strong>Extrínsecos</strong></td>
+     <td>Vientre muscular principalmente en el antebrazo; sus tendones llegan a la mano.</td>
+     <td>Flexor superficial y profundo de los dedos, flexor largo del pulgar, extensor de los dedos.</td>
+     <td>Fuerza de flexión y extensión de dedos y pulgar; contribución al movimiento de muñeca.</td>
+    </tr>
+    <tr>
+     <td><strong>Intrínsecos</strong></td>
+     <td>Dentro de la mano.</td>
+     <td>Lumbricales, interóseos, músculos tenares e hipotenares.</td>
+     <td>Control fino, ajuste de los dedos, oposición y estabilización durante la prensión.</td>
+    </tr>
+   </tbody>
+  </table>
+ </div>
+ <div class="callout">
+  <strong>Idea clave:</strong> extrínseco no significa “más importante” ni “solo fuerza”, e intrínseco no significa “solo precisión”. Ambos grupos trabajan coordinadamente.
+ </div>
+</section>
+
+<section class="section" id="extrinsecos">
+ <div class="section-head">
+  <div class="kicker">04 · Músculos extrínsecos</div>
+  <h2>Flexores y extensores largos</h2>
+  <p class="lead">Sus vientres se localizan en el antebrazo. En la mano encontramos principalmente sus tendones y estructuras de deslizamiento.</p>
+ </div>
+
+ <div class="card">
+  <h3>Flexores largos de los dedos</h3>
+  <div class="grid2">
+   <div class="muscle">
+    <h3>Flexor superficial de los dedos (FSD)</h3>
+    <p>Sus tendones se dividen cerca de la falange proximal y se insertan en los lados de la falange media de los dedos 2.º al 5.º.</p>
+    <div class="function">Acción principal: flexión de las articulaciones interfalángicas proximales (IFP).</div>
+    <p><strong>Inervación:</strong> nervio mediano.</p>
+   </div>
+   <div class="muscle">
+    <h3>Flexor profundo de los dedos (FPD)</h3>
+    <p>Sus tendones atraviesan las divisiones del FSD y llegan a la base de las falanges distales de los dedos 2.º al 5.º.</p>
+    <div class="function">Acción principal: flexión de las articulaciones interfalángicas distales (IFD).</div>
+    <p><strong>Inervación:</strong> porción lateral (índice y medio), nervio interóseo anterior del mediano; porción medial (anular y meñique), nervio cubital.</p>
+   </div>
+  </div>
+  <div class="callout">
+   <strong>Diferencia esencial:</strong> el FSD actúa principalmente sobre la IFP; el FPD llega hasta la falange distal y flexiona la IFD. Ambos pueden contribuir a la flexión de otras articulaciones según la posición y la tarea.
+  </div>
+  <h3>Flexor largo del pulgar (FLP)</h3>
+  <p>Su tendón pasa por la región palmar de la muñeca y se inserta en la base de la falange distal del pulgar. Flexiona principalmente la articulación interfalángica del pulgar. Está inervado por el nervio interóseo anterior, rama del mediano.</p>
+ </div>
+
+ <div class="card">
+  <h3>Extensores largos</h3>
+  <div class="grid2">
+   <div class="muscle">
+    <h3>Extensor de los dedos</h3>
+    <p>Se dirige a los dedos 2.º al 5.º y se integra con el aparato extensor dorsal.</p>
+    <div class="function">Extiende principalmente las MCF y, mediante el aparato extensor, contribuye a la extensión interfalángica.</div>
+    <p><strong>Inervación:</strong> nervio interóseo posterior.</p>
+   </div>
+   <div class="muscle">
+    <h3>Extensor del índice</h3>
+    <p>Se une al aparato extensor del índice y ayuda a extenderlo de forma más independiente.</p>
+    <div class="function">Contribuye a la extensión del índice.</div>
+    <p><strong>Inervación:</strong> nervio interóseo posterior.</p>
+   </div>
+   <div class="muscle">
+    <h3>Extensor del meñique</h3>
+    <p>Su tendón se une al aparato extensor del quinto dedo.</p>
+    <div class="function">Contribuye a la extensión del meñique.</div>
+    <p><strong>Inervación:</strong> nervio interóseo posterior.</p>
+   </div>
+   <div class="muscle">
+    <h3>Extensores del pulgar</h3>
+    <p>El extensor largo llega a la falange distal; el extensor corto, a la falange proximal.</p>
+    <div class="function">Extensión del pulgar en sus articulaciones correspondientes.</div>
+    <p><strong>Inervación:</strong> nervio interóseo posterior.</p>
+   </div>
+  </div>
+  <p class="small">El abductor largo del pulgar se inserta en la base del primer metacarpiano y participa principalmente en la abducción y extensión del pulgar a nivel carpometacarpiano.</p>
+ </div>
+</section>
+
+<section class="section" id="intrinsecos">
+ <div class="section-head">
+  <div class="kicker">05 · Músculos intrínsecos</div>
+  <h2>Los músculos propios de la mano</h2>
+  <p class="lead">Se organizan en grupos tenares, hipotenares, lumbricales e interóseos.</p>
+ </div>
+
+ <div class="card">
+  <h3>Grupo tenar</h3>
+  <p>Se encuentra en la base del pulgar y participa en su movilidad y oposición.</p>
+  <div class="grid3">
+   <div class="muscle">
+    <h3>Abductor corto del pulgar</h3>
+    <p>Abduce el pulgar, sobre todo en el plano perpendicular a la palma, y ayuda a la oposición.</p>
+    <div class="function">Inervación habitual: rama recurrente del nervio mediano.</div>
+   </div>
+   <div class="muscle">
+    <h3>Flexor corto del pulgar</h3>
+    <p>Flexiona el pulgar en la articulación metacarpofalángica. Puede presentar variaciones en su inervación.</p>
+    <div class="function">La cabeza superficial suele recibir inervación mediana; la profunda puede recibir inervación cubital.</div>
+   </div>
+   <div class="muscle">
+    <h3>Oponente del pulgar</h3>
+    <p>Desplaza y rota el primer metacarpiano para orientar el pulgar frente a los otros dedos.</p>
+    <div class="function">Inervación habitual: rama recurrente del mediano.</div>
+   </div>
+  </div>
+  <h4>Aductor del pulgar</h4>
+  <p>Se ubica en un plano más profundo. Aduce el pulgar hacia la palma y contribuye a la fuerza de pinza, especialmente en la pinza lateral. Está inervado por la rama profunda del nervio cubital.</p>
+ </div>
+
+ <div class="card">
+  <h3>Grupo hipotenar</h3>
+  <p>Se localiza en el borde medial de la palma, relacionado con el quinto dedo.</p>
+  <div class="grid2">
+   <div class="muscle">
+    <h3>Abductor del dedo mínimo</h3>
+    <p>Abduce el quinto dedo y contribuye a su flexión en la MCF.</p>
+    <div class="function">Inervación: rama profunda del nervio cubital.</div>
+   </div>
+   <div class="muscle">
+    <h3>Flexor corto del dedo mínimo</h3>
+    <p>Flexiona el quinto dedo en la MCF.</p>
+    <div class="function">Inervación: rama profunda del nervio cubital.</div>
+   </div>
+   <div class="muscle">
+    <h3>Oponente del dedo mínimo</h3>
+    <p>Desplaza el quinto metacarpiano hacia delante y rota su eje, profundizando la concavidad palmar.</p>
+    <div class="function">Inervación: rama profunda del nervio cubital.</div>
+   </div>
+   <div class="muscle">
+    <h3>Palmar corto</h3>
+    <p>Músculo superficial que tensa y pliega la piel de la región hipotenar; ayuda al contacto de la palma con objetos.</p>
+    <div class="function">Inervación: rama superficial del nervio cubital.</div>
+   </div>
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Lumbricales</h3>
+  <p>Son cuatro músculos pequeños que nacen de los tendones del flexor profundo de los dedos y se insertan en el aparato extensor de los dedos 2.º al 5.º.</p>
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>Músculos</th><th>Inervación habitual</th><th>Acción coordinada</th></tr></thead>
+    <tbody>
+     <tr><td>1.º y 2.º lumbricales</td><td>Nervio mediano.</td><td>Flexión MCF y contribución a extensión IFP e IFD.</td></tr>
+     <tr><td>3.º y 4.º lumbricales</td><td>Rama profunda del nervio cubital.</td><td>Flexión MCF y contribución a extensión IFP e IFD.</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <div class="callout">
+   <strong>Concepto fundamental:</strong> los lumbricales ayudan a producir la postura intrínseco-plus: flexión de las MCF con extensión de las articulaciones interfalángicas. No actúan solos; los interóseos y el aparato extensor también participan.
+  </div>
+ </div>
+
+ <div class="card">
+  <h3>Interóseos</h3>
+  <div class="grid2">
+   <div class="muscle">
+    <h3>Interóseos dorsales</h3>
+    <p>Son cuatro músculos bipenniformes entre los metacarpianos.</p>
+    <div class="function">Abducen los dedos respecto al eje del tercer dedo; también ayudan a flexionar MCF y extender IF.</div>
+   </div>
+   <div class="muscle">
+    <h3>Interóseos palmares</h3>
+    <p>Habitualmente se describen tres músculos.</p>
+    <div class="function">Aducen los dedos hacia el eje del tercer dedo; también ayudan a flexionar MCF y extender IF.</div>
+   </div>
+  </div>
+  <p>Todos los interóseos reciben inervación de la rama profunda del nervio cubital. La regla mnemotécnica clásica es DAB/PAD: los dorsales abducen y los palmares aducen.</p>
+  <div class="callout warning">
+   <strong>Precisión anatómica:</strong> el eje de referencia para abducción y aducción de los dedos es el dedo medio (tercer dedo), no el dedo índice.
+  </div>
+ </div>
+</section>
+
+<section class="section" id="tendones">
+ <div class="section-head">
+  <div class="kicker">06 · Tendones y estructuras de deslizamiento</div>
+  <h2>Cómo se guían los tendones flexores</h2>
+  <p class="lead">Los tendones transmiten la fuerza muscular hacia los segmentos óseos. Para deslizarse de manera eficiente necesitan vainas, poleas y tejidos de soporte.</p>
+ </div>
+ <div class="card">
+  <h3>Vaina fibrosa y vaina sinovial</h3>
+  <div class="grid2">
+   <div class="info">
+    <strong>Vaina fibrosa</strong>
+    <p>Canal osteofibroso que mantiene los tendones flexores próximos a los huesos y contiene las poleas digitales.</p>
+   </div>
+   <div class="info">
+    <strong>Vaina sinovial</strong>
+    <p>Revestimiento que facilita el deslizamiento de los tendones. Su distribución y comunicación presentan variaciones anatómicas.</p>
+   </div>
+  </div>
+
+  <h3 style="margin-top:22px">Sistema de poleas de los dedos</h3>
+  <p>En los dedos largos se describen cinco poleas anulares (A1–A5) y tres cruciformes (C1–C3). Mantienen los tendones flexores cerca del esqueleto digital y evitan que se separen excesivamente de los huesos durante la flexión.</p>
+
+  <div class="table-wrap">
+   <table>
+    <thead><tr><th>Polea</th><th>Ubicación aproximada</th><th>Dato funcional</th></tr></thead>
+    <tbody>
+     <tr><td>A1</td><td>Región de la articulación MCF.</td><td>Parte del sistema de contención proximal.</td></tr>
+     <tr><td>A2</td><td>Falange proximal.</td><td>Una de las poleas principales para mantener el recorrido del tendón.</td></tr>
+     <tr><td>A3</td><td>Región de la articulación IFP.</td><td>Se relaciona con la placa volar de la articulación.</td></tr>
+     <tr><td>A4</td><td>Falange media.</td><td>Junto con A2 es especialmente importante para la contención tendinosa.</td></tr>
+     <tr><td>A5</td><td>Región de la articulación IFD.</td><td>Parte del sistema distal de poleas.</td></tr>
+     <tr><td>C1–C3</td><td>Entre poleas anulares.</td><td>Permiten adaptación del canal durante el movimiento.</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <div class="callout">
+   <strong>Para recordar:</strong> A2 y A4 son especialmente relevantes para evitar el fenómeno de cuerda de arco de los tendones flexores. La disposición puede variar entre personas y dedos.
+  </div>
+  <h3>¿Qué ocurre en el pulgar?</h3>
+  <p>El pulgar posee un sistema de poleas propio, diferente al de los dedos largos. No se debe trasladar automáticamente la numeración A1–A5 a su anatomía.</p>
+ </div>
+</section>
+
+<section class="section" id="mecanismo">
+ <div class="section-head">
+  <div class="kicker">07 · Aparato extensor</div>
+  <h2>El mecanismo extensor dorsal</h2>
+  <p class="lead">La extensión de los dedos no depende únicamente del tendón del extensor de los dedos. Su fuerza se distribuye mediante una expansión tendinosa compleja.</p>
+ </div>
+ <div class="card">
+  <p>En el dorso de cada dedo, el tendón extensor se continúa con la expansión extensora. Esta estructura recibe aportes de los músculos intrínsecos y se organiza en bandas que coordinan la extensión de las articulaciones.</p>
+  <div class="grid2">
+   <div class="info"><strong>Banda central</strong><p>Se dirige hacia la base de la falange media y participa en la extensión de la IFP.</p></div>
+   <div class="info"><strong>Bandas laterales</strong><p>Reciben aportes de los músculos intrínsecos, se reúnen distalmente y contribuyen a extender la IFD.</p></div>
+   <div class="info"><strong>Bandas sagitales</strong><p>Ayudan a mantener centrado el tendón extensor sobre la cabeza metacarpiana.</p></div>
+   <div class="info"><strong>Lumbricales e interóseos</strong><p>Se integran en el mecanismo extensor y equilibran la acción de los tendones extrínsecos.</p></div>
+  </div>
+  <div class="callout warning">
+   <strong>No confundir:</strong> la banda central se relaciona principalmente con la extensión de la IFP; las bandas laterales contribuyen a la extensión de la IFD. El movimiento real depende del equilibrio del conjunto y de la posición articular.
+  </div>
+ </div>
+</section>
+
+<section class="section" id="funcion">
+ <div class="section-head">
+  <div class="kicker">08 · Biomecánica funcional</div>
+  <h2>Coordinación durante las actividades</h2>
+ </div>
+ <div class="card">
+  <h3>Postura intrínseco-plus</h3>
+  <p>Se caracteriza por flexión de las articulaciones MCF y extensión de las IFP e IFD. Los lumbricales e interóseos contribuyen a esta postura mediante su integración con el aparato extensor.</p>
+  <h3>Flexión de los dedos</h3>
+  <p>El FSD flexiona principalmente las IFP y el FPD flexiona las IFD. La flexión MCF también puede involucrar a los músculos intrínsecos y a los tendones extrínsecos, según la tarea.</p>
+  <h3>Extensión de los dedos</h3>
+  <p>El extensor de los dedos contribuye a extender las MCF. La extensión de las articulaciones interfalángicas requiere la acción coordinada del aparato extensor y de los músculos intrínsecos.</p>
+  <h3>Pinza y prensión</h3>
+  <p>La pinza requiere posicionamiento del pulgar, estabilidad de los dedos y dosificación de fuerza. El aductor del pulgar, los músculos tenares, los interóseos y los flexores largos participan de manera diferente según el tipo de pinza.</p>
+  <h3>Manipulación fina</h3>
+  <p>Las tareas de precisión requieren ajustes pequeños y continuos. Los músculos intrínsecos ayudan a estabilizar las articulaciones mientras los tendones largos generan movimiento y fuerza.</p>
+ </div>
+</section>
+
+<section class="section" id="clinica">
+ <div class="section-head">
+  <div class="kicker">09 · Relevancia clínica</div>
+  <h2>Relación entre anatomía y función</h2>
+  <p class="lead">Estos ejemplos ayudan a comprender por qué una alteración muscular, tendinosa o nerviosa puede modificar el desempeño manual.</p>
+ </div>
+ <div class="card">
+  <div class="grid2">
+   <div class="info"><strong>Lesión del tendón flexor profundo</strong><p>Puede comprometer la flexión activa de la IFD del dedo afectado, porque el FPD es el tendón que llega a la falange distal.</p></div>
+   <div class="info"><strong>Lesión del tendón flexor superficial</strong><p>Puede reducir la flexión activa de la IFP. La evaluación debe considerar variaciones y compensaciones de otros músculos.</p></div>
+   <div class="info"><strong>Alteración del aparato extensor</strong><p>Una lesión de la banda terminal puede alterar la extensión de la IFD; una lesión de la banda central puede comprometer la extensión de la IFP.</p></div>
+   <div class="info"><strong>Compromiso del nervio cubital</strong><p>Puede afectar interóseos, lumbricales mediales y varios músculos hipotenares, alterando separación y aproximación de dedos y coordinación intrínseca.</p></div>
+   <div class="info"><strong>Compromiso del nervio mediano</strong><p>Puede afectar músculos tenares importantes para la oposición y abducción del pulgar, además de los dos lumbricales laterales.</p></div>
+   <div class="info"><strong>Alteración de poleas flexoras</strong><p>Puede modificar el recorrido de los tendones y reducir la eficiencia mecánica de la flexión.</p></div>
+  </div>
+  <div class="callout warning">
+   <strong>Importante:</strong> una deformidad o patrón postural no permite identificar por sí solo una lesión específica. La localización, gravedad, tiempo de evolución, sensibilidad, movilidad y evaluación clínica completa son esenciales.
+  </div>
+ </div>
+ <div class="card">
+  <h3>Aplicación en Terapia Ocupacional</h3>
+  <ul>
+   <li>Relacionar la estructura comprometida con la actividad que presenta dificultad.</li>
+   <li>Observar movilidad activa y pasiva, coordinación, estabilidad y sensibilidad dentro del marco de evaluación correspondiente.</li>
+   <li>Analizar cómo la persona realiza actividades cotidianas: vestido, alimentación, escritura, higiene y manipulación de objetos.</li>
+   <li>Considerar que el desempeño depende también del dolor, edema, sensibilidad, movilidad articular, contexto y demandas de la tarea.</li>
+  </ul>
+ </div>
+</section>
+
+<!-- ATLAS INTERACTIVO -->
+<section class="section" id="explorador">
+ <div class="section-head">
+  <div class="kicker">10 · Atlas interactivo</div>
+  <h2>Explora los grupos musculares</h2>
+  <p class="lead">Selecciona una región para consultar sus músculos, función e inervación principal.</p>
+ </div>
+ <div class="card">
+  <div class="actions" role="group" aria-label="Seleccionar grupo muscular">
+   <button class="btn region-btn" data-region="tenar" aria-pressed="true">Región tenar</button>
+   <button class="btn secondary region-btn" data-region="hipotenar" aria-pressed="false">Región hipotenar</button>
+   <button class="btn secondary region-btn" data-region="lumbricales" aria-pressed="false">Lumbricales</button>
+   <button class="btn secondary region-btn" data-region="interoseos" aria-pressed="false">Interóseos</button>
+   <button class="btn secondary region-btn" data-region="extrinsecos" aria-pressed="false">Extrínsecos</button>
+  </div>
+  <div class="grid2">
+   <div class="info">
+    <span class="tag" id="region-tag">MÚSCULOS INTRÍNSECOS</span>
+    <h3 id="region-title" style="margin-top:10px">Región tenar</h3>
+    <p id="region-description">Grupo muscular situado en la base del pulgar, relacionado con la abducción, flexión y oposición.</p>
+   </div>
+   <div class="info">
+    <strong>Componentes y función</strong>
+    <ul id="region-list">
+     <li>Abductor corto del pulgar: abducción y ayuda en oposición.</li>
+     <li>Flexor corto del pulgar: flexión de la MCF.</li>
+     <li>Oponente del pulgar: oposición.</li>
+     <li>Aductor del pulgar: aducción y fuerza de pinza.</li>
+    </ul>
+    <p id="region-nerve" class="small">Inervación: principalmente nervio mediano; el aductor del pulgar recibe inervación cubital.</p>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- EXPLORADOR DE ACTIVIDADES -->
+<section class="section" id="actividades">
+ <div class="section-head">
+  <div class="kicker">11 · Relación estructura-función</div>
+  <h2>¿Qué participa en esta actividad?</h2>
+  <p class="lead">Elige una acción cotidiana para observar qué estructuras suelen contribuir. Ninguna actividad depende de un solo músculo.</p>
+ </div>
+ <div class="card">
+  <label for="activity-select"><strong>Actividad funcional</strong></label>
+  <select id="activity-select">
+   <option value="escritura">Sujetar un lápiz para escribir</option>
+   <option value="llave">Sujetar una llave (pinza lateral)</option>
+   <option value="cilindro">Sujetar un vaso cilíndrico</option>
+   <option value="abrir">Abrir y cerrar los dedos</option>
+   <option value="boton">Abotonar una prenda</option>
+  </select>
+  <div class="info" style="margin-top:17px">
+   <h3 id="activity-title">Sujetar un lápiz para escribir</h3>
+   <p id="activity-copy">La pinza trípode puede combinar oposición del pulgar, control de índice y medio, estabilidad de muñeca y ajustes continuos de fuerza.</p>
+   <strong>Participación habitual</strong>
+   <ul id="activity-muscles">
+    <li>Músculos tenares para posicionar y estabilizar el pulgar.</li>
+    <li>Flexores largos para ajustar la flexión digital.</li>
+    <li>Interóseos y lumbricales para el control fino y la estabilidad.</li>
+    <li>Extensores y estabilizadores de muñeca para mantener una base funcional.</li>
+   </ul>
+   <p class="small" id="activity-note">La estrategia varía según el agarre, el tamaño del lápiz, la tarea y las características de la persona.</p>
+  </div>
+ </div>
+</section>
+
+<!-- PROGRESO -->
+<section class="section" id="progreso">
+ <div class="section-head">
+  <div class="kicker">12 · Seguimiento</div>
+  <h2>Mi progreso en este módulo</h2>
+  <p class="lead">Marca los apartados que ya estudiaste. El avance se actualiza mientras utilizas esta página.</p>
+ </div>
+ <div class="card">
+  <div class="progress"><span id="study-progress"></span></div>
+  <p id="study-progress-label" class="small">0 de 6 apartados completados</p>
+  <div class="grid2" id="study-checklist">
+   <label><input type="checkbox"> Organización muscular</label>
+   <label><input type="checkbox"> Músculos extrínsecos</label>
+   <label><input type="checkbox"> Músculos intrínsecos</label>
+   <label><input type="checkbox"> Tendones y poleas</label>
+   <label><input type="checkbox"> Aparato extensor y biomecánica</label>
+   <label><input type="checkbox"> Relevancia clínica y resumen</label>
+  </div>
+ </div>
+</section>
+
+<section class="section" id="resumen">
+ <div class="section-head">
+  <div class="kicker">13 · Repaso</div>
+  <h2>Resumen de alto rendimiento</h2>
+ </div>
+ <div class="card">
+  <ul>
+   <li><strong>Extrínsecos:</strong> vientre muscular en antebrazo; tendones llegan a la mano.</li>
+   <li><strong>Intrínsecos:</strong> origen e inserción dentro de la mano.</li>
+   <li><strong>FSD:</strong> flexiona principalmente IFP.</li>
+   <li><strong>FPD:</strong> flexiona IFD; llega a la falange distal.</li>
+   <li><strong>Extensor de los dedos:</strong> extiende MCF y contribuye a la extensión IF mediante el aparato extensor.</li>
+   <li><strong>Lumbricales:</strong> flexionan MCF y ayudan a extender IF; 1.º y 2.º mediano, 3.º y 4.º cubital.</li>
+   <li><strong>Interóseos dorsales:</strong> abducción; <strong>palmares:</strong> aducción. Todos cubital profundo.</li>
+   <li><strong>Tenar:</strong> movimientos del pulgar; la mayoría mediano, aductor del pulgar cubital.</li>
+   <li><strong>Hipotenar:</strong> movimientos del quinto dedo; principalmente cubital.</li>
+   <li><strong>Poleas A2 y A4:</strong> especialmente importantes para mantener los tendones flexores cerca del hueso.</li>
+   <li><strong>Aparato extensor:</strong> banda central asociada a IFP; bandas laterales contribuyen a IFD.</li>
+  </ul>
+ </div>
+ <div class="table-wrap card">
+  <h3>Tabla comparativa de inervación</h3>
+  <table>
+   <thead><tr><th>Estructura</th><th>Inervación habitual</th></tr></thead>
+   <tbody>
+    <tr><td>FSD</td><td>Nervio mediano</td></tr>
+    <tr><td>FPD para índice y medio</td><td>Nervio interóseo anterior (mediano)</td></tr>
+    <tr><td>FPD para anular y meñique</td><td>Nervio cubital</td></tr>
+    <tr><td>Lumbricales 1.º y 2.º</td><td>Nervio mediano</td></tr>
+    <tr><td>Lumbricales 3.º y 4.º</td><td>Rama profunda del cubital</td></tr>
+    <tr><td>Interóseos</td><td>Rama profunda del cubital</td></tr>
+    <tr><td>Abductor corto y oponente del pulgar</td><td>Rama recurrente del mediano</td></tr>
+    <tr><td>Aductor del pulgar</td><td>Rama profunda del cubital</td></tr>
+    <tr><td>Extensores digitales</td><td>Nervio interóseo posterior</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<section class="section" id="glosario">
+ <div class="section-head">
+  <div class="kicker">14 · Terminología</div>
+  <h2>Glosario esencial</h2>
+ </div>
+ <div class="table-wrap card">
+  <table>
+   <thead><tr><th>Término</th><th>Definición</th></tr></thead>
+   <tbody>
+    <tr><td>Vientre muscular</td><td>Porción contráctil del músculo.</td></tr>
+    <tr><td>Tendón</td><td>Tejido conectivo que transmite la fuerza del músculo hacia su inserción.</td></tr>
+    <tr><td>Intrínseco</td><td>Que tiene origen e inserción dentro de la mano.</td></tr>
+    <tr><td>Extrínseco</td><td>Que tiene su vientre muscular fuera de la mano, generalmente en el antebrazo.</td></tr>
+    <tr><td>Abducción</td><td>Movimiento que aleja un dedo del eje de referencia (tercer dedo).</td></tr>
+    <tr><td>Aducción</td><td>Movimiento que aproxima un dedo al eje de referencia.</td></tr>
+    <tr><td>Expansión extensora</td><td>Complejo tendinoso dorsal que distribuye fuerzas para extender los dedos.</td></tr>
+    <tr><td>Polea tendinosa</td><td>Estructura fibrosa que guía y mantiene el tendón cerca del hueso.</td></tr>
+    <tr><td>Vaina sinovial</td><td>Revestimiento que facilita el deslizamiento de determinados tendones.</td></tr>
+    <tr><td>Intrínseco-plus</td><td>Postura de flexión MCF y extensión interfalángica.</td></tr>
+   </tbody>
+  </table>
+ </div>
+</section>
+
+<!-- FLASHCARDS -->
+<section class="section" id="flashcards">
+ <div class="section-head">
+  <div class="kicker">15 · Memorización activa</div>
+  <h2>Flashcards</h2>
+  <p class="lead">Intenta responder antes de revelar la explicación. Usa los botones para avanzar y retroceder.</p>
+ </div>
+ <div class="card">
+  <div class="flashcard" id="flashcard" role="button" tabindex="0" aria-label="Mostrar respuesta de la tarjeta">
+   <span class="hint" id="flashhint">PREGUNTA · 1 / 8</span>
+   <h3 id="flashfront">¿Qué diferencia a un músculo intrínseco de uno extrínseco?</h3>
+   <p id="flashback" hidden>El intrínseco tiene origen e inserción dentro de la mano; el extrínseco tiene su vientre fuera de la mano, generalmente en el antebrazo.</p>
+   <span class="small" id="flashinstruction">Haz clic para revelar la respuesta</span>
+  </div>
+  <div class="actions">
+   <button class="btn secondary" id="prevcard">← Anterior</button>
+   <button class="btn" id="flipcard">Revelar respuesta</button>
+   <button class="btn secondary" id="nextcard">Siguiente →</button>
+  </div>
+  <div class="progress"><span id="flashprogress"></span></div>
+ </div>
+</section>
+
+<!-- CUESTIONARIO -->
+<section class="section" id="evaluacion">
+ <div class="section-head">
+  <div class="kicker">16 · Comprueba lo aprendido</div>
+  <h2>Cuestionario de autoevaluación</h2>
+  <p class="lead">Selecciona una respuesta por pregunta y pulsa “Calificar”.</p>
+ </div>
+ <div class="card" id="quiz">
+  <div class="quiz-q">
+   <p>1. ¿Dónde se localizan los vientres musculares de la mayoría de los músculos extrínsecos de los dedos?</p>
+   <label><input type="radio" name="q1" value="a"> En las falanges</label>
+   <label><input type="radio" name="q1" value="b"> En el antebrazo</label>
+   <label><input type="radio" name="q1" value="c"> En la palma exclusivamente</label>
+  </div>
+  <div class="quiz-q">
+   <p>2. ¿Qué músculo flexiona principalmente la articulación interfalángica distal?</p>
+   <label><input type="radio" name="q2" value="a"> Flexor profundo de los dedos</label>
+   <label><input type="radio" name="q2" value="b"> Flexor superficial de los dedos</label>
+   <label><input type="radio" name="q2" value="c"> Extensor de los dedos</label>
+  </div>
+  <div class="quiz-q">
+   <p>3. ¿Cuál es la acción clásica de los interóseos dorsales?</p>
+   <label><input type="radio" name="q3" value="a"> Aducción de los dedos</label>
+   <label><input type="radio" name="q3" value="b"> Abducción de los dedos</label>
+   <label><input type="radio" name="q3" value="c"> Flexión aislada de la IFD</label>
+  </div>
+  <div class="quiz-q">
+   <p>4. ¿Qué nervio inerva habitualmente los dos primeros lumbricales?</p>
+   <label><input type="radio" name="q4" value="a"> Nervio radial</label>
+   <label><input type="radio" name="q4" value="b"> Nervio cubital</label>
+   <label><input type="radio" name="q4" value="c"> Nervio mediano</label>
+  </div>
+  <div class="quiz-q">
+   <p>5. ¿Qué músculos contribuyen a la postura intrínseco-plus?</p>
+   <label><input type="radio" name="q5" value="a"> Lumbricales e interóseos, coordinados con el aparato extensor</label>
+   <label><input type="radio" name="q5" value="b"> Solo el flexor profundo</label>
+   <label><input type="radio" name="q5" value="c"> Solo los extensores de muñeca</label>
+  </div>
+  <div class="quiz-q">
+   <p>6. ¿Cuál es una función principal de las poleas flexoras?</p>
+   <label><input type="radio" name="q6" value="a"> Producir líquido sinovial</label>
+   <label><input type="radio" name="q6" value="b"> Mantener los tendones flexores próximos a los huesos</label>
+   <label><input type="radio" name="q6" value="c"> Extender las articulaciones MCF</label>
+  </div>
+  <div class="quiz-q">
+   <p>7. ¿Qué nervio inerva el aductor del pulgar?</p>
+   <label><input type="radio" name="q7" value="a"> Rama profunda del nervio cubital</label>
+   <label><input type="radio" name="q7" value="b"> Rama recurrente del mediano</label>
+   <label><input type="radio" name="q7" value="c"> Nervio interóseo posterior</label>
+  </div>
+  <div class="quiz-q">
+   <p>8. ¿Qué estructura se asocia principalmente con la extensión de la IFP?</p>
+   <label><input type="radio" name="q8" value="a"> Banda central del aparato extensor</label>
+   <label><input type="radio" name="q8" value="b"> Polea A2</label>
+   <label><input type="radio" name="q8" value="c"> Vaina sinovial</label>
+  </div>
+  <div class="actions">
+   <button class="btn" id="grade">Calificar respuestas</button>
+   <button class="btn secondary" id="reset">Reiniciar</button>
+  </div>
+  <div class="result" id="result" role="status"></div>
+ </div>
+</section>
+
+<section class="section" id="referencias">
+ <div class="section-head">
+  <div class="kicker">17 · Bibliografía</div>
+  <h2>Fuentes de consulta</h2>
+  <p class="lead">Referencias anatómicas para ampliar y contrastar los contenidos.</p>
+ </div>
+ <div class="card">
+  <ol>
+   <li>Valenzuela M, Launico MV, Varacallo MA. <em>Anatomy, Shoulder and Upper Limb, Hand Lumbrical Muscles.</em> StatPearls [Internet]. <a href="https://www.ncbi.nlm.nih.gov/books/NBK534876/" target="_blank" rel="noopener">NCBI Bookshelf</a>.</li>
+   <li>Nguyen JD, Duong H. <em>Anatomy, Shoulder and Upper Limb, Hand Long Flexor Tendons and Sheaths.</em> StatPearls [Internet]. <a href="https://www.ncbi.nlm.nih.gov/books/NBK546607/" target="_blank" rel="noopener">NCBI Bookshelf</a>.</li>
+   <li>Valenzuela M, Varacallo MA. <em>Anatomy, Shoulder and Upper Limb, Hand Interossei Muscles.</em> StatPearls [Internet]. <a href="https://www.ncbi.nlm.nih.gov/books/NBK534772/" target="_blank" rel="noopener">NCBI Bookshelf</a>.</li>
+   <li>Okwumabua E, Sinkler MA, Bordoni B. <em>Anatomy, Shoulder and Upper Limb, Hand Muscles.</em> StatPearls [Internet]. <a href="https://www.ncbi.nlm.nih.gov/books/NBK537229/" target="_blank" rel="noopener">NCBI Bookshelf</a>.</li>
+   <li>Schöffl VR, et al. <em>Tendon injuries of the hand.</em> <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC3377907/" target="_blank" rel="noopener">PubMed Central</a>.</li>
+   <li>Standring S, editor. <em>Gray’s Anatomy: The Anatomical Basis of Clinical Practice.</em> Elsevier. Consultar la edición institucional disponible.</li>
+  </ol>
+  <p class="small">La bibliografía debe ampliarse y contrastarse con el texto físico de Teletón utilizado en el curso, especialmente para respetar su terminología y organización.</p>
+ </div>
+</section>
+
+<footer>
+ TO Study · Miembro Superior · Material educativo de estudio<br>
+ <span id="year"></span> · Elaborado para apoyar el aprendizaje de Terapia Ocupacional.
+</footer>
+
+</main>
+</div>
+
+<button class="backtop" id="backtop" aria-label="Volver arriba">↑</button>
+
+<script>
+(() => {
+
+/* NAVEGACIÓN Y SECCIÓN ACTIVA */
+const links = [...document.querySelectorAll('.sidebar a')];
+const sections = links
+ .map(link => document.querySelector(link.getAttribute('href')))
+ .filter(Boolean);
+
+const observer = new IntersectionObserver(entries => {
+ entries.forEach(entry => {
+  if(entry.isIntersecting){
+   links.forEach(link => {
+    link.classList.toggle(
+     'active',
+     link.getAttribute('href') === '#' + entry.target.id
+    );
+   });
+  }
+ });
+},{rootMargin:'-20% 0px -70% 0px'});
+
+sections.forEach(section => observer.observe(section));
+document.getElementById('year').textContent =
+ '© ' + new Date().getFullYear();
+
+/* ATLAS MUSCULAR INTERACTIVO */
+const regionData = {
+ tenar:{
+  tag:'MÚSCULOS INTRÍNSECOS',
+  title:'Región tenar',
+  description:'Grupo muscular situado en la base del pulgar, relacionado con la abducción, flexión y oposición.',
+  items:[
+   'Abductor corto del pulgar: abducción y ayuda en oposición.',
+   'Flexor corto del pulgar: flexión de la MCF.',
+   'Oponente del pulgar: oposición mediante desplazamiento y rotación del primer metacarpiano.',
+   'Aductor del pulgar: aducción y fuerza de pinza.'
+  ],
+  nerve:'Inervación: principalmente nervio mediano; el aductor del pulgar recibe inervación cubital. El flexor corto puede presentar variación.'
+ },
+ hipotenar:{
+  tag:'MÚSCULOS INTRÍNSECOS',
+  title:'Región hipotenar',
+  description:'Grupo situado en el borde medial de la palma y relacionado con los movimientos del quinto dedo.',
+  items:[
+   'Abductor del dedo mínimo: abduce el quinto dedo.',
+   'Flexor corto del dedo mínimo: flexiona la MCF del quinto dedo.',
+   'Oponente del dedo mínimo: desplaza y rota el quinto metacarpiano.',
+   'Palmar corto: tensa la piel de la región hipotenar.'
+  ],
+  nerve:'Inervación: principalmente nervio cubital; el palmar corto recibe la rama superficial y los otros músculos, habitualmente la rama profunda.'
+ },
+ lumbricales:{
+  tag:'MÚSCULOS INTRÍNSECOS',
+  title:'Lumbricales',
+  description:'Cuatro músculos que nacen de los tendones del flexor profundo y se integran con el aparato extensor dorsal.',
+  items:[
+   'Primer lumbrical: asociado al índice.',
+   'Segundo lumbrical: asociado al medio.',
+   'Tercer lumbrical: asociado al anular.',
+   'Cuarto lumbrical: asociado al meñique.'
+  ],
+  nerve:'Inervación habitual: primero y segundo por el mediano; tercero y cuarto por la rama profunda del cubital. Acción coordinada: flexión MCF y ayuda a extensión IF.'
+ },
+ interoseos:{
+  tag:'MÚSCULOS INTRÍNSECOS',
+  title:'Interóseos',
+  description:'Músculos ubicados entre los metacarpianos que controlan la separación y aproximación de los dedos.',
+  items:[
+   'Cuatro interóseos dorsales: abducen los dedos respecto al eje del tercer dedo.',
+   'Tres interóseos palmares: aducen los dedos hacia el eje del tercer dedo.',
+   'Ambos grupos colaboran en la flexión MCF.',
+   'Ambos grupos se integran al aparato extensor y ayudan a extender IF.'
+  ],
+  nerve:'Inervación: rama profunda del nervio cubital. Regla clásica: dorsales abducen; palmares aducen.'
+ },
+ extrinsecos:{
+  tag:'MÚSCULOS EXTRÍNSECOS',
+  title:'Tendones extrínsecos',
+  description:'Los vientres musculares se encuentran principalmente en el antebrazo y sus tendones llegan a la mano.',
+  items:[
+   'FSD: tendones hacia las falanges medias; flexión principalmente IFP.',
+   'FPD: tendones hacia las falanges distales; flexión IFD.',
+   'FLP: llega a la falange distal del pulgar; flexiona la IF del pulgar.',
+   'Extensores: se integran con la expansión extensora dorsal.'
+  ],
+  nerve:'Inervación variable según músculo y porción: mediano/interóseo anterior, cubital e interóseo posterior.'
+ }
+};
+
+document.querySelectorAll('.region-btn').forEach(btn => {
+ btn.addEventListener('click',() => {
+  const data = regionData[btn.dataset.region];
+  if(!data) return;
+
+  document.querySelectorAll('.region-btn').forEach(b => {
+   const active = b === btn;
+   b.classList.toggle('secondary',!active);
+   b.setAttribute('aria-pressed',String(active));
+  });
+
+  document.getElementById('region-tag').textContent = data.tag;
+  document.getElementById('region-title').textContent = data.title;
+  document.getElementById('region-description').textContent = data.description;
+  document.getElementById('region-nerve').textContent = data.nerve;
+
+  const list = document.getElementById('region-list');
+  list.replaceChildren(...data.items.map(text => {
+   const li = document.createElement('li');
+   li.textContent = text;
+   return li;
+  }));
+ });
+});
+
+/* EXPLORADOR DE ACTIVIDADES */
+const activities = {
+ escritura:{
+  title:'Sujetar un lápiz para escribir',
+  copy:'La pinza trípode puede combinar oposición del pulgar, control de índice y medio, estabilidad de muñeca y ajustes continuos de fuerza.',
+  muscles:[
+   'Músculos tenares para posicionar y estabilizar el pulgar.',
+   'Flexores largos para ajustar la flexión digital.',
+   'Interóseos y lumbricales para el control fino y la estabilidad.',
+   'Extensores y estabilizadores de muñeca para mantener una base funcional.'
+  ],
+  note:'La estrategia varía según el agarre, el tamaño del lápiz, la tarea y las características de la persona.'
+ },
+ llave:{
+  title:'Sujetar una llave (pinza lateral)',
+  copy:'El pulgar presiona la llave contra el lado del índice. La estabilidad de la articulación del pulgar y del índice ayuda a transmitir la fuerza.',
+  muscles:[
+   'Aductor del pulgar para la presión de aducción.',
+   'Primer interóseo dorsal para estabilizar el índice.',
+   'Flexores y extensores digitales para ajustar la posición.'
+  ],
+  note:'La pinza lateral no es idéntica a la pinza terminal: cambian las superficies de contacto y la distribución de fuerzas.'
+ },
+ cilindro:{
+  title:'Sujetar un vaso cilíndrico',
+  copy:'La mano adapta su apertura y curvatura al diámetro del objeto y distribuye el contacto entre varios dedos y la palma.',
+  muscles:[
+   'Flexores superficiales y profundos para cerrar los dedos alrededor del objeto.',
+   'Músculos tenares para posicionar el pulgar.',
+   'Interóseos para ajustar la separación y estabilidad digital.',
+   'Músculos de muñeca para estabilizar la base de la mano.'
+  ],
+  note:'La fuerza necesaria depende del peso, diámetro, textura y estabilidad del objeto.'
+ },
+ abrir:{
+  title:'Abrir y cerrar los dedos',
+  copy:'La apertura y el cierre requieren coordinación entre extensores, flexores, músculos intrínsecos y movimiento de muñeca.',
+  muscles:[
+   'Extensor de los dedos y extensores propios para abrir los dedos.',
+   'FSD y FPD para flexionar las articulaciones digitales.',
+   'Interóseos y lumbricales para equilibrar MCF e interfalángicas.'
+  ],
+  note:'No se debe atribuir el movimiento completo a un único músculo.'
+ },
+ boton:{
+  title:'Abotonar una prenda',
+  copy:'Es una tarea de manipulación fina que combina pinza, sensibilidad, coordinación bilateral y ajustes precisos de fuerza.',
+  muscles:[
+   'Músculos tenares para posicionar el pulgar.',
+   'Flexores largos para sujetar y desplazar el botón.',
+   'Interóseos y lumbricales para el ajuste fino de los dedos.',
+   'Extensores para liberar y reposicionar los dedos.'
+  ],
+  note:'El desempeño también depende de la visión, sensibilidad, tamaño del botón y características de la prenda.'
+ }
+};
+
+document.getElementById('activity-select').addEventListener('change',event => {
+ const data = activities[event.target.value];
+
+ document.getElementById('activity-title').textContent = data.title;
+ document.getElementById('activity-copy').textContent = data.copy;
+ document.getElementById('activity-note').textContent = data.note;
+
+ const list = document.getElementById('activity-muscles');
+ list.replaceChildren(...data.muscles.map(text => {
+  const li = document.createElement('li');
+  li.textContent = text;
+  return li;
+ }));
+});
+
+/* SEGUIMIENTO DEL ESTUDIO */
+const checks = [...document.querySelectorAll('#study-checklist input')];
+
+function updateStudyProgress(){
+ const completed = checks.filter(check => check.checked).length;
+ const percentage = Math.round(completed / checks.length * 100);
+
+ document.getElementById('study-progress').style.width =
+  percentage + '%';
+
+ document.getElementById('study-progress-label').textContent =
+  `${completed} de ${checks.length} apartados completados (${percentage}%)`;
+}
+
+checks.forEach(check => check.addEventListener('change',updateStudyProgress));
+updateStudyProgress();
+
+/* FLASHCARDS */
+const cards = [
+ ['¿Qué diferencia a un músculo intrínseco de uno extrínseco?',
+  'El intrínseco tiene origen e inserción dentro de la mano; el extrínseco tiene su vientre fuera de la mano, generalmente en el antebrazo.'],
+ ['¿Qué hace principalmente el FSD?',
+  'Flexiona principalmente las articulaciones interfalángicas proximales (IFP) de los dedos 2.º al 5.º.'],
+ ['¿Qué hace principalmente el FPD?',
+  'Flexiona las articulaciones interfalángicas distales (IFD), porque llega hasta la falange distal.'],
+ ['¿Qué hacen los interóseos dorsales?',
+  'Abducen los dedos respecto al eje del tercer dedo y colaboran en flexión MCF y extensión IF.'],
+ ['¿Qué hacen los interóseos palmares?',
+  'Aducen los dedos hacia el eje del tercer dedo y colaboran en flexión MCF y extensión IF.'],
+ ['¿Cómo se inervan los lumbricales?',
+  'Los dos laterales por el nervio mediano; los dos mediales por la rama profunda del nervio cubital.'],
+ ['¿Qué es la postura intrínseco-plus?',
+  'Flexión de las articulaciones MCF con extensión de las articulaciones interfalángicas.'],
+ ['¿Qué función tienen las poleas A2 y A4?',
+  'Ayudan a mantener los tendones flexores próximos a las falanges y son importantes para evitar el efecto de cuerda de arco.']
+];
+
+let cardIndex = 0;
+let revealed = false;
+
+const front = document.getElementById('flashfront');
+const back = document.getElementById('flashback');
+
+function renderCard(){
+ front.textContent = cards[cardIndex][0];
+ back.textContent = cards[cardIndex][1];
+
+ document.getElementById('flashhint').textContent =
+  `PREGUNTA · ${cardIndex + 1} / ${cards.length}`;
+
+ front.hidden = revealed;
+ back.hidden = !revealed;
+
+ document.getElementById('flashinstruction').textContent =
+  revealed ? 'Haz clic para volver a la pregunta' : 'Haz clic para revelar la respuesta';
+
+ document.getElementById('flipcard').textContent =
+  revealed ? 'Ver pregunta' : 'Revelar respuesta';
+
+ document.getElementById('flashprogress').style.width =
+  ((cardIndex + 1) / cards.length * 100) + '%';
+}
+
+function flipCard(){
+ revealed = !revealed;
+ renderCard();
+}
+
+document.getElementById('flashcard').addEventListener('click',flipCard);
+document.getElementById('flashcard').addEventListener('keydown',event => {
+ if(event.key === 'Enter' || event.key === ' '){
+  event.preventDefault();
+  flipCard();
+ }
+});
+document.getElementById('flipcard').addEventListener('click',flipCard);
+
+document.getElementById('prevcard').addEventListener('click',() => {
+ cardIndex = (cardIndex - 1 + cards.length) % cards.length;
+ revealed = false;
+ renderCard();
+});
+
+document.getElementById('nextcard').addEventListener('click',() => {
+ cardIndex = (cardIndex + 1) % cards.length;
+ revealed = false;
+ renderCard();
+});
+
+renderCard();
+
+/* CUESTIONARIO */
+const answers = {
+ q1:'b',q2:'a',q3:'b',q4:'c',
+ q5:'a',q6:'b',q7:'a',q8:'a'
+};
+
+document.getElementById('grade').addEventListener('click',() => {
+ let score = 0;
+ let unanswered = 0;
+
+ Object.entries(answers).forEach(([name,correct]) => {
+  const selected = document.querySelector(
+   `input[name="${name}"]:checked`
+  );
+
+  if(!selected) unanswered++;
+  else if(selected.value === correct) score++;
+ });
+
+ const result = document.getElementById('result');
+ result.style.display = 'block';
+ result.textContent =
+  `Resultado: ${score} de 8 respuestas correctas (${Math.round(score/8*100)}%).` +
+  (unanswered ? ` Te faltan ${unanswered} pregunta(s) por responder.` : '');
+
+ result.style.background = score >= 6 ? '#eef8f5' : '#fff7e9';
+ result.style.color = score >= 6 ? '#236b54' : '#795b25';
+});
+
+document.getElementById('reset').addEventListener('click',() => {
+ document.querySelectorAll('#quiz input').forEach(input => {
+  input.checked = false;
+ });
+
+ const result = document.getElementById('result');
+ result.style.display = 'none';
+ result.textContent = '';
+});
+
+/* BOTÓN VOLVER ARRIBA */
+const topButton = document.getElementById('backtop');
+
+window.addEventListener('scroll',() => {
+ topButton.style.display = window.scrollY > 500 ? 'block' : 'none';
+});
+
+topButton.addEventListener('click',() => {
+ window.scrollTo({top:0,behavior:'smooth'});
+});
+
+})();
+</script>
+
+</body>
+</html>
