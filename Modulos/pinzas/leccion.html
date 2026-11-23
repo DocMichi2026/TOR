@@ -38,29 +38,123 @@ const data=[
 {name:"Garra palmar",kind:"Garra y prensión",desc:"El objeto descansa contra la palma y los dedos se flexionan para retenerlo. El pulgar ayuda a estabilizarlo, pero el contacto palmar tiene un papel importante.",key:"A diferencia de una pinza de yemas, el objeto se apoya ampliamente sobre la palma.",facts:[["Contacto","Palma más flexión de los dedos."],["Pulgar","Estabiliza el objeto contra la mano."],["Ejemplo","Sujetar una pelota blanda o un objeto voluminoso."]],curl:[.75,.8,.8,.75],thumb:.75},
 {name:"Garra esférica",kind:"Garra y prensión",desc:"Los dedos se separan y flexionan alrededor de un objeto esférico; el pulgar se opone para estabilizarlo. La apertura entre los dedos permite abarcar el volumen.",key:"Busca dedos separados que rodean una esfera; no es un cierre cilíndrico paralelo.",facts:[["Dedos","Abducción y flexión alrededor de la esfera."],["Pulgar","Oposición y estabilización."],["Ejemplo","Sostener una pelota pequeña."]],curl:[.7,.75,.8,.7],thumb:1.1}
 ];
-const params=new URLSearchParams(location.search),initial=Math.max(0,Math.min(10,Number(params.get("id"))||0));let current=initial,score=0,tries=0,scene,camera,renderer,controls,hand,parts=[],isAnimating=false,raf=0;
+const params=new URLSearchParams(location.search),initial=Math.max(0,Math.min(10,Number(params.get("id"))||0));let current=initial,score=0,tries=0,scene,camera,renderer,controls,hand,prop,parts=[],isAnimating=false,raf=0;
 const $=id=>document.getElementById(id);
-function makeMat(color,rough=.68){return new THREE.MeshStandardMaterial({color,roughness:rough})}
-const skin=makeMat(0xd9a17f),jointMat=makeMat(0xc88e70),nailMat=makeMat(0xf0d2c4),dark=makeMat(0x8c5947);
-function capsule(a,b,r,material){const v=new THREE.Vector3().subVectors(b,a),mesh=new THREE.Mesh(new THREE.CapsuleGeometry(r,Math.max(.01,v.length()-2*r),4,10),material);mesh.position.copy(a).add(b).multiplyScalar(.5);mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());mesh.castShadow=true;mesh.receiveShadow=true;return mesh}
+function makeMat(color,rough=.68){return new THREE.MeshStandardMaterial({color,roughness:rough,metalness:0})}
+const skin=makeMat(0xc98f70,.72),skinLight=makeMat(0xd8a184,.7),creaseMat=makeMat(0x965f4d,.9),propMat=makeMat(0xd5a45f,.42),propDark=makeMat(0x536b78,.5);
+function capsuleBetween(a,b,r1,r2,material){
+ const dir=new THREE.Vector3().subVectors(b,a),len=dir.length();
+ const geo=new THREE.CylinderGeometry(r2,r1,len,20,1,false);
+ const mesh=new THREE.Mesh(geo,material);mesh.position.copy(a).add(b).multiplyScalar(.5);
+ mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());mesh.castShadow=true;mesh.receiveShadow=true;return mesh;
+}
+function addPhalanx(parent,len,radius){
+ const g=new THREE.Group();
+ const shaft=new THREE.Mesh(new THREE.CapsuleGeometry(radius,len-radius*2,6,18),skinLight);
+ shaft.position.y=len/2;shaft.castShadow=true;shaft.receiveShadow=true;g.add(shaft);
+ const knuckle=new THREE.Mesh(new THREE.SphereGeometry(radius*.98,20,16),skin);
+ knuckle.position.set(0,len,0);knuckle.castShadow=true;g.add(knuckle);
+ return g;
+}
 function makeHand(){
- hand=new THREE.Group();const palm=new THREE.Mesh(new THREE.BoxGeometry(2.05,2.35,.48,5,5,2),skin);palm.position.set(0,-.05,0);palm.scale.set(1,.98,1);palm.castShadow=true;hand.add(palm);
- const fingerXs=[-.78,-.27,.27,.76],lengths=[[.66,.48,.38],[.78,.55,.4],[.72,.51,.37],[.57,.4,.31]];
- fingerXs.forEach((x,i)=>{let parent=new THREE.Group();parent.position.set(x,.88,0);hand.add(parent);let segs=[],joints=[];let lens=lengths[i];let prev=new THREE.Vector3(0,0,0);lens.forEach((len,j)=>{let pivot=new THREE.Group();if(j===0)parent.add(pivot);else{segs[j-1].add(pivot);pivot.position.y=lens[j-1]}let start=new THREE.Vector3(0,0,0),end=new THREE.Vector3(0,len,0);const bone=capsule(start,end,.105-j*.012,skin);bone.position.y=len/2;pivot.add(bone);const joint=new THREE.Mesh(new THREE.SphereGeometry(.115-j*.01,16,12),jointMat);joint.position.y=len;pivot.add(joint);segs.push(pivot);joints.push(joint);});parts.push({type:"finger",index:i,root:parent,segs,joints});});
- const thumb=new THREE.Group();thumb.position.set(1.0,-.72,.04);thumb.rotation.z=-.7;hand.add(thumb);let tSegs=[];[.68,.53].forEach((len,j)=>{let p=new THREE.Group();if(j===0)thumb.add(p);else{tSegs[j-1].add(p);p.position.y=[.68][j-1]}let b=capsule(new THREE.Vector3(0,0,0),new THREE.Vector3(0,len,0),.14-j*.025,skin);b.position.y=len/2;p.add(b);let joint=new THREE.Mesh(new THREE.SphereGeometry(.14-j*.02,16,12),jointMat);joint.position.y=len;p.add(joint);tSegs.push(p)});parts.push({type:"thumb",root:thumb,segs:tSegs});
- const wrist=new THREE.Mesh(new THREE.CylinderGeometry(.72,.82,.55,32),skin);wrist.position.set(0,-1.45,0);hand.add(wrist);
+ hand=new THREE.Group();parts=[];
+ // Palma con contorno anatómico suavizado y volumen real, no una caja rectangular.
+ const outline=new THREE.Shape();
+ outline.moveTo(-.49,-1.25);outline.quadraticCurveTo(-.55,-.9,-.62,-.45);
+ outline.quadraticCurveTo(-.78,-.12,-.76,.27);outline.lineTo(-.68,.76);
+ outline.quadraticCurveTo(-.65,.96,-.48,.94);outline.quadraticCurveTo(-.34,.92,-.31,.78);
+ outline.lineTo(-.22,.91);outline.quadraticCurveTo(-.08,1.03,.06,.91);
+ outline.lineTo(.16,.97);outline.quadraticCurveTo(.32,1.04,.43,.88);
+ outline.lineTo(.55,.73);outline.quadraticCurveTo(.78,.72,.82,.48);
+ outline.quadraticCurveTo(.83,.16,.72,-.32);outline.lineTo(.53,-1.25);outline.closePath();
+ const palmGeo=new THREE.ExtrudeGeometry(outline,{depth:.38,bevelEnabled:true,bevelSegments:5,steps:1,bevelSize:.12,bevelThickness:.12,curveSegments:16});
+ palmGeo.translate(0,0,-.19);
+ const palm=new THREE.Mesh(palmGeo,skin);palm.castShadow=true;palm.receiveShadow=true;hand.add(palm);
+ // Eminencia tenar: volumen muscular de la base del pulgar.
+ const thenar=new THREE.Mesh(new THREE.SphereGeometry(1,28,20),skin);
+ thenar.position.set(.48,-.35,.17);thenar.scale.set(.37,.63,.22);thenar.rotation.z=-.42;hand.add(thenar);
+ // Muñeca y transición anatómica hacia el antebrazo.
+ const wrist=new THREE.Mesh(new THREE.CapsuleGeometry(.39,.72,8,24),skin);
+ wrist.position.set(-.01,-1.48,-.01);wrist.scale.set(1,.9,.72);wrist.castShadow=true;hand.add(wrist);
+ // Cuatro dedos con proporciones diferenciadas y tres falanges articuladas.
+ const roots=[-.51,-.18,.17,.49],lengths=[[.43,.34,.27],[.49,.39,.29],[.45,.35,.26],[.36,.29,.23]],radii=[.105,.112,.105,.087];
+ roots.forEach((x,i)=>{
+  const root=new THREE.Group();root.position.set(x,.68,.02);hand.add(root);
+  const segs=[];let parent=root;
+  lengths[i].forEach((len,j)=>{
+   const pivot=new THREE.Group();parent.add(pivot);
+   const ph=addPhalanx(pivot,len,radii[i]*(1-j*.13));
+   ph.position.y=len/2;
+   // Falanges con leve estrechamiento distal y nudillos discretos.
+   segs.push(pivot);
+   if(j<2){const next=new THREE.Group();next.position.y=len;pivot.add(next);parent=next;}
+  });
+  parts.push({type:"finger",index:i,root,segs});
+ });
+ // Pulgar: primer metacarpiano oblicuo y dos falanges en oposición.
+ const thumb=new THREE.Group();thumb.position.set(.67,-.55,.13);thumb.rotation.z=-.78;hand.add(thumb);
+ const thumbSegs=[];let tp=thumb;
+ [.53,.43].forEach((len,j)=>{
+  const pivot=new THREE.Group();tp.add(pivot);
+  const ph=addPhalanx(pivot,len,j===0?.145:.12);ph.position.y=len/2;
+  thumbSegs.push(pivot);
+  if(j===0){const next=new THREE.Group();next.position.y=len;pivot.add(next);tp=next;}
+ });
+ parts.push({type:"thumb",root:thumb,segs:thumbSegs});
+ // Pliegues palmares finos para dar lectura anatómica desde la vista palmar.
+ function crease(points){
+  const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(p[0],p[1],.315)));
+  const line=new THREE.Mesh(new THREE.TubeGeometry(curve,24,.009,6,false),creaseMat);hand.add(line);
+ }
+ crease([[-.48,.24],[-.22,.13],[.05,.12],[.35,.2],[.58,.34]]);
+ crease([[-.38,-.12],[-.13,-.2],[.15,-.18],[.43,-.08]]);
+ crease([[.34,-.52],[.23,-.35],[.12,-.22]]);
  return hand;
 }
+function makeProp(){
+ const group=new THREE.Group();const sphere=new THREE.Mesh(new THREE.SphereGeometry(.34,32,24),propMat);
+ const cylinder=new THREE.Mesh(new THREE.CylinderGeometry(.13,.13,1.05,28),propMat);
+ const card=new THREE.Mesh(new THREE.BoxGeometry(.75,.48,.055),propDark);
+ const pencil=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,1.25,16),propMat);
+ const keyRing=new THREE.Mesh(new THREE.TorusGeometry(.18,.035,10,28),propMat);
+ const bead=new THREE.Mesh(new THREE.SphereGeometry(.10,24,18),propMat);
+ [sphere,cylinder,card,pencil,keyRing,bead].forEach(m=>{m.visible=false;m.castShadow=true;group.add(m)});
+ group.userData.items={sphere,cylinder,card,pencil,keyRing,bead};scene.add(group);return group;
+}
+function showProp(index){
+ if(!prop)return;const p=prop.userData.items;Object.values(p).forEach(m=>m.visible=false);
+ const configs={0:["sphere",[.08,.25,.9]],1:["card",[.2,.25,.72]],2:["bead",[.0,.55,.72]],3:["keyRing",[.58,.15,.72]],4:["pencil",[-.03,.58,.8]],5:["bead",[-.03,.9,.72]],6:["card",[0,.05,.78]],7:["cylinder",[.05,.05,.85]],8:["cylinder",[.08,-.05,.86]],9:["sphere",[0,-.05,.75]],10:["sphere",[.05,.18,.88]]};
+ const cfg=configs[index];if(!cfg)return;const m=p[cfg[0]];m.visible=true;m.position.set(...cfg[1]);
+ if(cfg[0]==="cylinder"&&index===8)m.rotation.z=Math.PI/2;
+ if(cfg[0]==="pencil")m.rotation.z=-.55;
+}
 function setup(){
- scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1219);camera=new THREE.PerspectiveCamera(35,1,.1,100);camera.position.set(0,.2,8.8);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x0b1219);camera=new THREE.PerspectiveCamera(35,1,.1,100);camera.position.set(0,.05,7.2);
  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;$("stage").appendChild(renderer.domElement);
  controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.enablePan=false;controls.minDistance=5;controls.maxDistance=13;controls.target.set(0,0,0);
  scene.add(new THREE.HemisphereLight(0xe6f3ff,0x35251d,2));const key=new THREE.DirectionalLight(0xffffff,3.2);key.position.set(-3,5,7);key.castShadow=true;scene.add(key);const fill=new THREE.DirectionalLight(0x68c7c4,1.5);fill.position.set(4,1,-4);scene.add(fill);
  const floor=new THREE.Mesh(new THREE.CircleGeometry(4.8,64),new THREE.MeshStandardMaterial({color:0x18252e,roughness:.9}));floor.rotation.x=-Math.PI/2;floor.position.y=-2.05;scene.add(floor);
- makeHand();scene.add(hand);const resize=()=>{const w=$("stage").clientWidth,h=$("stage").clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)};new ResizeObserver(resize).observe($("stage"));resize();$("loading").remove();loop();
+ makeHand();scene.add(hand);prop=makeProp();const resize=()=>{const w=$("stage").clientWidth,h=$("stage").clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)};new ResizeObserver(resize).observe($("stage"));resize();$("loading").remove();loop();
 }
 function loop(){raf=requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)}
-function setPose(index){const d=data[index];parts.forEach(p=>{if(p.type==="finger"){const c=d.curl[p.index];p.segs.forEach((s,j)=>{s.rotation.z=(c*(j===0?.42:j===1?.95:1.15));});p.root.rotation.z=(p.index-1.5)*.035;if(index===10)p.root.rotation.z=(p.index-1.5)*.12;}else{p.root.rotation.z=-.65-d.thumb*.42;p.root.rotation.x=.12;p.segs[0].rotation.x=-.25*d.thumb;p.segs[1].rotation.x=-.4*d.thumb;}});$("poseLabel").textContent="Demostración: "+d.name;}
+function setPose(index){
+ const d=data[index];
+ parts.forEach(p=>{
+  if(p.type==="finger"){
+   const curl=d.curl[p.index];
+   const spread=index===10?(p.index-1.5)*.16:index===6?(p.index-1.5)*.035:0;
+   p.root.rotation.z=spread;
+   p.segs.forEach((s,j)=>{const base=j===0?.22:j===1?.52:.62;s.rotation.x=curl*base;});
+  }else{
+   p.root.rotation.z=-.78-d.thumb*.12;
+   p.root.rotation.x=.05;
+   p.segs[0].rotation.x=.12*d.thumb;
+   p.segs[1].rotation.x=.28*d.thumb;
+  }
+ });
+ showProp(index);
+ $("poseLabel").textContent="Demostración: "+d.name;
+}
 function renderTopic(){
  const d=data[current];$("heading").textContent=d.name;$("title").textContent=d.name;$("desc").textContent=d.desc;$("key").textContent=d.key;$("kicker").textContent="Patrón "+String(current+1).padStart(2,"0")+" · "+d.kind;
  $("facts").innerHTML=d.facts.map(f=>'<div class="fact"><b>'+f[0]+'</b><span>'+f[1]+'</span></div>').join("");
@@ -68,7 +162,7 @@ function renderTopic(){
 }
 function makeQuestion(){const options=[current,...Array.from({length:3},()=>Math.floor(Math.random()*11))].sort(()=>Math.random()-.5);$("question").textContent="¿Cuál es el patrón que estás observando?";$("answers").innerHTML="";options.forEach(i=>{const b=document.createElement("button");b.className="answer";b.textContent=data[i].name;b.onclick=()=>{tries++;$("tries").textContent=tries;if(i===current){score++;$("score").textContent=score;$("status").textContent="¡Correcto! Has identificado el patrón."; $("status").className="status good"}else{$("status").textContent="No exactamente. Revisa el nombre y las claves del patrón."; $("status").className="status bad"}};$("answers").append(b)});$("status").textContent="Selecciona la respuesta correcta.";$("status").className="status"}
 data.forEach((d,i)=>{const b=document.createElement("button");b.className="topic";b.textContent=String(i+1).padStart(2,"0")+" · "+d.name;b.onclick=()=>{current=i;history.replaceState(null,"","?id="+i);renderTopic()};$("topics").append(b)});
-$("front").onclick=()=>{camera.position.set(0,.2,8.8);controls.target.set(0,0,0)};$("side").onclick=()=>{camera.position.set(8,.1,1.2);controls.target.set(0,0,0)};$("reset").onclick=()=>{current=initial;renderTopic();camera.position.set(0,.2,8.8);controls.target.set(0,0,0)};
-$("animate").onclick=()=>{if(isAnimating)return;isAnimating=true;const start=performance.now(),duration=1300,base=data[current].curl.slice();function step(now){const t=Math.min(1,(now-start)/duration),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;parts.forEach(p=>{if(p.type==="finger")p.segs.forEach((s,j)=>{const target=(base[p.index]*(j===0?.42:j===1?.95:1.15));s.rotation.z=target*e});});if(t<1)requestAnimationFrame(step);else{isAnimating=false;setPose(current)}}requestAnimationFrame(step)};
+$("front").onclick=()=>{camera.position.set(0,.05,7.2);controls.target.set(0,0,0)};$("side").onclick=()=>{camera.position.set(8,.1,1.2);controls.target.set(0,0,0)};$("reset").onclick=()=>{current=initial;renderTopic();camera.position.set(0,.2,8.8);controls.target.set(0,0,0)};
+$("animate").onclick=()=>{if(isAnimating)return;isAnimating=true;const start=performance.now(),duration=1300,base=data[current].curl.slice();function step(now){const t=Math.min(1,(now-start)/duration),e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;parts.forEach(p=>{if(p.type==="finger")p.segs.forEach((s,j)=>{const target=(base[p.index]*(j===0?.22:j===1?.52:.62));s.rotation.x=target*e});});if(t<1)requestAnimationFrame(step);else{isAnimating=false;setPose(current)}}requestAnimationFrame(step)};
 try{setup();renderTopic()}catch(e){$("loading").textContent="No se pudo iniciar el modelo 3D. Recarga la página o comprueba tu conexión." ;console.error(e)}
 </script></body></html>
