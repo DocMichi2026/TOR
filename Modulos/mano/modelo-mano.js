@@ -20,9 +20,9 @@ const PAL={
 
 /* ---------------- texturas procedurales ---------------- */
 function texRayas(){
-  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
   x.fillStyle='#ffffff';x.fillRect(0,0,256,256);
-  for(let i=0;i<150;i++){
+  for(let i=0;i<80;i++){
     const px=i*1.75+Math.random()*2,g=Math.random();
     x.strokeStyle='rgba('+(110+g*40|0)+',86,78,'+(0.07+g*0.15).toFixed(3)+')';
     x.lineWidth=0.5+Math.random()*1.5;x.beginPath();x.moveTo(px,-4);
@@ -34,7 +34,7 @@ function texRayas(){
 function texHueso(){
   const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
   x.fillStyle='#ffffff';x.fillRect(0,0,256,256);
-  for(let i=0;i<240;i++){
+  for(let i=0;i<120;i++){
     const r=4+Math.random()*26,cx=Math.random()*256,cy=Math.random()*256;
     const g=x.createRadialGradient(cx,cy,0,cx,cy,r);
     g.addColorStop(0,'rgba(196,176,140,'+(0.02+Math.random()*0.10).toFixed(3)+')');
@@ -64,7 +64,7 @@ function hash3(x,y,z,s){const v=Math.sin(x*127.1+y*311.7+z*74.7+s*13.37)*43758.5
 
 function tubeGeo(pts,rFn,opt){
   opt=opt||{};
-  const tub=opt.tub||44,rad=opt.rad||13,sq=opt.sq===undefined?1:opt.sq;
+  const tub=Math.min(opt.tub||36,28),rad=Math.min(opt.rad||11,10),sq=opt.sq===undefined?1:opt.sq;
   const c=new THREE.CatmullRomCurve3(pts.map(p=>p.clone()),false,'catmullrom',0.3);
   const fr=c.computeFrenetFrames(tub,false);
   const pos=[],nor=[],idx=[],uvs=[];
@@ -88,9 +88,9 @@ function tubeGeo(pts,rFn,opt){
   g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
   g.setIndex(idx);return g;
 }
-function sph(r,p,seg,ring){return new THREE.SphereGeometry(r,seg||14,ring||10).translate(p.x,p.y,p.z);}
+function sph(r,p,seg,ring){return new THREE.SphereGeometry(r,Math.min(seg||14,10),Math.min(ring||10,8)).translate(p.x,p.y,p.z);}
 function blob(rx,ry,rz,seed,detail){
-  const g=new THREE.SphereGeometry(1,20,14),a=g.attributes.position,d=detail===undefined?0.06:detail;
+  const g=new THREE.SphereGeometry(1,14,10),a=g.attributes.position,d=detail===undefined?0.06:detail;
   for(let i=0;i<a.count;i++){
     const x=a.getX(i),y=a.getY(i),z=a.getZ(i),n=1+d*hash3(x*3,y*3,z*3,seed||1);
     a.setXYZ(i,x*rx*n,y*ry*n,z*rz*n);
