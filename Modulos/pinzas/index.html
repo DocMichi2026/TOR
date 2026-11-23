@@ -1,26 +1,39 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Clasificación funcional de las pinzas | TOR</title>
-  <style>
-    *{box-sizing:border-box}body{margin:0;background:#f3f7f7;color:#203747;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
-    header{padding:28px 20px;background:linear-gradient(120deg,#153b50,#236b83);color:#fff}
-    header a{color:#c8e9e4;text-decoration:none;font-size:13px;font-weight:700}
-    main{width:min(850px,calc(100% - 32px));margin:36px auto}
-    section{padding:30px;border:1px solid #dce7e9;border-radius:16px;background:#fff}
-    h1{margin:0 0 10px;color:#153b50;font-size:clamp(26px,5vw,38px);line-height:1.2}
-    p{color:#687d89}
-    .note{margin-top:22px;padding:15px 17px;border-left:4px solid #32958e;border-radius:8px;background:#edf6f5;color:#41616c;font-size:14px}
-  </style>
-</head>
-<body>
-  <header><a href="../../index.html">← Volver a los módulos TOR</a></header>
-  <main><section>
-    <h1>Clasificación funcional de las pinzas</h1>
-    <p>Sección de estudio de la Biblioteca TOR.</p>
-    <div class="note">Esta carpeta ya está creada. Aquí organizaremos el material, las explicaciones, imágenes, esquemas y actividades correspondientes a este módulo.</div>
-  </section></main>
-</body>
-</html>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#102b3d">
+<title>Pinzas y patrones de prensión | TOR</title>
+<style>
+:root{--navy:#142f42;--teal:#168b87;--paper:#f5f7f5;--ink:#203746;--muted:#71818a;--line:#e5ebe8}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,"Segoe UI",system-ui,sans-serif;line-height:1.55}a{color:inherit;text-decoration:none}
+.top{height:60px;background:white;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 max(18px,calc((100vw - 1160px)/2))}.brand{font-size:12px;font-weight:850;letter-spacing:.1em;color:var(--navy)}.back{font-size:12px;color:#61747d;font-weight:700}
+.hero{background:linear-gradient(115deg,#102b3d,#174b5a 58%,#167b7b);color:white}.hero-in{max-width:1160px;margin:auto;padding:38px 22px 34px}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#9ed6ce;font-weight:850}h1{font-size:clamp(30px,5vw,46px);line-height:1.1;letter-spacing:-.04em;margin:12px 0 9px}.hero p{max-width:700px;color:#c4d4d9;font-size:13px;margin:0;line-height:1.7}.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.pill{border:1px solid #ffffff30;border-radius:30px;padding:6px 11px;font-size:10px;color:#e3efef}
+main{max-width:1160px;margin:auto;padding:27px 22px 50px}.intro{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:14px}.kicker{font-size:10px;color:var(--teal);font-weight:850;letter-spacing:.13em;text-transform:uppercase}h2{font-size:21px;color:var(--navy);margin:3px 0 0}.count{font-size:11px;color:var(--muted)}
+.tools{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:15px}.filters{display:flex;gap:6px;flex-wrap:wrap}.filter{border:1px solid var(--line);border-radius:30px;background:white;color:#637680;padding:7px 11px;font-size:10px;font-weight:750;cursor:pointer}.filter.active{background:var(--navy);border-color:var(--navy);color:white}.search{width:min(280px,100%);height:36px;border:1px solid var(--line);border-radius:9px;padding:0 12px;font:inherit;font-size:11px;background:white;outline:none}.search:focus{border-color:var(--teal)}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.card{display:flex;flex-direction:column;min-height:170px;padding:16px;border:1px solid var(--line);border-radius:13px;background:white;transition:.18s}.card:hover{transform:translateY(-2px);border-color:#b9d6d0;box-shadow:0 10px 24px #203d3510}.cardtop{display:flex;justify-content:space-between;align-items:center}.ico{width:34px;height:34px;border-radius:10px;background:#e4f3ef;color:#168b87;display:grid;place-items:center;font-size:17px}.num{font-size:9px;color:#9aa8aa;font-weight:850;letter-spacing:.1em}.tag{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:#168b87;font-weight:850;margin-top:11px}.card h3{font-size:13px;line-height:1.35;color:var(--navy);margin:4px 0 5px}.card p{font-size:10.5px;line-height:1.55;color:var(--muted);margin:0 0 12px}.go{margin-top:auto;color:#168b87;font-size:10px;font-weight:850;display:flex;justify-content:space-between}.empty{display:none;padding:25px;text-align:center;color:var(--muted);background:white;border:1px dashed var(--line);border-radius:12px;font-size:12px}
+footer{text-align:center;padding:18px;color:#8b999d;font-size:10px;border-top:1px solid var(--line)}
+@media(max-width:820px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:560px){.top{padding:0 15px}.hero-in{padding:30px 17px}.hero p{font-size:12px}main{padding:22px 15px 38px}.grid{grid-template-columns:1fr;gap:9px}.card{min-height:145px}.intro{align-items:flex-start;flex-direction:column}.search{width:100%}}
+</style></head><body>
+<nav class="top"><div class="brand">TOR · TERAPIA OCUPACIONAL</div><a class="back" href="../../index.html">← Volver a módulos</a></nav>
+<header class="hero"><div class="hero-in"><div class="eyebrow">Aula interactiva · función de la mano</div><h1>Pinzas y patrones de prensión</h1><p>Estudia cómo la mano adapta la posición del pulgar y los dedos para sujetar, manipular y controlar objetos. Explora cada patrón con una demostración 3D, claves biomecánicas y ejemplos funcionales.</p><div class="pills"><span class="pill">11 patrones de prensión</span><span class="pill">Modelo 3D interactivo</span><span class="pill">Práctica y autoevaluación</span></div></div></header>
+<main><div class="intro"><div><div class="kicker">Ruta de aprendizaje</div><h2>Explora los 11 patrones</h2></div><span class="count" id="count">11 temas disponibles</span></div>
+<div class="tools"><div class="filters" id="filters"><button class="filter active" data-filter="todos">Todos</button><button class="filter" data-filter="pinza">Pinzas digitales</button><button class="filter" data-filter="garra">Garras y prensión</button><button class="filter" data-filter="dinamica">Dinámicas</button></div><input class="search" id="search" type="search" placeholder="Buscar patrón..." aria-label="Buscar patrón"></div>
+<section class="grid" id="grid"></section><div class="empty" id="empty">No encontramos patrones con esa búsqueda.</div></main><footer>Material didáctico TOR · Representaciones funcionales esquemáticas para estudio.</footer>
+<script>
+const items=[
+["Garra circular","Cierre de los dedos alrededor de un objeto pequeño o de contorno redondeado, con participación coordinada del pulgar.","garra","◯","El contacto rodea parcialmente el objeto y permite estabilizarlo."],
+["Pinza lateral dinámica","El pulgar contacta la cara lateral del índice mientras los dedos ajustan la presión durante la manipulación.","dinamica","↔","Útil para sostener y reajustar objetos delgados mientras se mueven."],
+["Pinza inferior dinámica","El pulgar y el índice realizan una oposición más baja, cerca de las yemas o pulpejos, con ajustes continuos de fuerza.","dinamica","⌄","Permite modular la fuerza y la posición durante una tarea."],
+["Pinza lateral o de llave","La yema del pulgar presiona contra el lado radial del índice, como al sujetar una llave.","pinza","⚿","Predomina la compresión lateral; requiere estabilidad del pulgar."],
+["Pinza trípode o de 3 puntos","Pulgar, índice y medio se oponen para sujetar un objeto entre tres puntos de contacto.","pinza","△","Patrón frecuente al sostener un lápiz o utensilio."],
+["Pinza fina superior","Oposición precisa entre las yemas del pulgar y del índice, con alta precisión y poca superficie de contacto.","pinza","·","También llamada pinza terminal en algunas clasificaciones."],
+["Garra digital transversa","Los dedos se flexionan y se disponen transversalmente para sujetar un objeto, con participación variable del pulgar.","garra","≋","El contacto se distribuye entre varios dedos."],
+["Garra cilíndrica","Los dedos se flexionan alrededor de un objeto alargado y el pulgar se opone para cerrar la prensión.","garra","▯","Ejemplo: sujetar un vaso alto o el mango de una herramienta."],
+["Garra en martillo","Prensión de un mango orientado como martillo, con dedos flexionados y pulgar estabilizando el agarre.","garra","⚒","La orientación de la muñeca y el mango influye en el control."],
+["Garra palmar","El objeto se apoya contra la palma y los dedos lo aseguran mediante flexión; el pulgar contribuye a la estabilidad.","garra","✋","Permite sujetar objetos voluminosos sin depender solo de las yemas."],
+["Garra esférica","Los dedos se separan y flexionan alrededor de un objeto redondo; el pulgar se opone para estabilizarlo.","garra","●","Ejemplo: sostener una pelota pequeña." ]
+];
+const grid=document.getElementById('grid'),search=document.getElementById('search'),empty=document.getElementById('empty'),count=document.getElementById('count');let active='todos';
+items.forEach((x,i)=>{const a=document.createElement('a');a.className='card';a.href='leccion.html?id='+i;a.dataset.kind=x[2];a.dataset.search=x.join(' ').toLocaleLowerCase('es');a.innerHTML='<div class="cardtop"><span class="ico">'+x[3]+'</span><span class="num">PATRÓN '+String(i+1).padStart(2,'0')+'</span></div><div class="tag">'+(x[2]==='pinza'?'Pinza digital':x[2]==='dinamica'?'Control dinámico':'Garra y prensión')+'</div><h3></h3><p></p><div class="go"><span>Explorar patrón</span><b>→</b></div>';a.querySelector('h3').textContent=x[0];a.querySelector('p').textContent=x[1];grid.append(a)});
+function render(){const q=search.value.trim().toLocaleLowerCase('es');let n=0;[...grid.children].forEach(c=>{const ok=(active==='todos'||c.dataset.kind===active)&&(!q||c.dataset.search.includes(q));c.hidden=!ok;if(ok)n++});count.textContent=n+' '+(n===1?'tema disponible':'temas disponibles');empty.style.display=n?'none':'block'}
+document.getElementById('filters').addEventListener('click',e=>{const b=e.target.closest('button[data-filter]');if(!b)return;active=b.dataset.filter;document.querySelectorAll('.filter').forEach(x=>x.classList.toggle('active',x===b));render()});search.addEventListener('input',render);
+</script></body></html>
