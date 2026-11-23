@@ -1149,8 +1149,8 @@
                         <div
                             class="tor-hand-view"
                             id="tor-hand-view"
-                            role="img"
-                            aria-label="Modelo anatómico tridimensional de la mano. Arrastra para rotar y usa la rueda para acercar."
+                            role="group"
+                            aria-label="Visor interactivo del modelo anatómico tridimensional de la mano"
                         >
                             <div class="tor-view-status" id="tor-view-status" role="status">
                                 Preparando motor anatómico 3D…
@@ -1174,7 +1174,7 @@
 
                         <div class="anatomy-caption">
 
-                            <strong id="tor-selected-name">Modelo anatómico de la mano</strong>
+                            <strong id="tor-selected-name"></strong>
 
                             <span id="tor-selected-meta">
                                 Arrastra para rotar · rueda para acercar · haz clic en una estructura para seleccionarla
@@ -1861,7 +1861,7 @@
         function describeSelection(id) {
             const item = tor && tor.porId(id);
             if (!item) {
-                selectedName.textContent = "Modelo anatómico de la mano";
+                selectedName.textContent = "";
                 selectedMeta.textContent = "Arrastra para rotar · rueda para acercar · haz clic en una estructura";
                 return;
             }
@@ -1898,7 +1898,11 @@
                 movementRange.disabled = !id;
                 if (!id) {
                     tor.resetPose();
+                    tor.mostrarTodo();
                     return;
+                }
+                if (typeof tor.aislarParticipantes === "function") {
+                    tor.aislarParticipantes(id);
                 }
                 tor.pose(id, Number(movementRange.value) / 100);
             });
@@ -2032,7 +2036,13 @@
                 renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
                 renderer.outputColorSpace = THREE.SRGBColorSpace;
                 renderer.domElement.setAttribute("aria-label", "Modelo 3D anatómico interactivo de la mano");
-                box.replaceChildren(renderer.domElement);
+                // Insertar el canvas sin eliminar la etiqueta de estado superpuesta.
+                // replaceChildren() quitaba #tor-view-status y dejaba el visor sin mensajes.
+                if (status && status.parentElement === box) {
+                    box.insertBefore(renderer.domElement, status);
+                } else {
+                    box.appendChild(renderer.domElement);
+                }
 
                 controls = new OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
