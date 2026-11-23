@@ -1,26 +1,153 @@
 <!DOCTYPE html>
-<html lang="es"> 
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sistema muscular y tendinoso de la mano | TOR</title>
-  <style>
-    *{box-sizing:border-box}body{margin:0;background:#f3f7f7;color:#203747;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.6}
-    header{padding:28px 20px;background:linear-gradient(120deg,#153b50,#236b83);color:#fff}
-    header a{color:#c8e9e4;text-decoration:none;font-size:13px;font-weight:700}
-    main{width:min(850px,calc(100% - 32px));margin:36px auto}
-    section{padding:30px;border:1px solid #dce7e9;border-radius:16px;background:#fff}
-    h1{margin:0 0 10px;color:#153b50;font-size:clamp(26px,5vw,38px);line-height:1.2}
-    p{color:#687d89}
-    .note{margin-top:22px;padding:15px 17px;border-left:4px solid #32958e;border-radius:8px;background:#edf6f5;color:#41616c;font-size:14px}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#102b3d">
+<title>Laboratorio 3D de la mano | TOR</title>
+<style>
+:root{--ink:#173346;--muted:#6b7f8c;--line:#dce6eb;--paper:#f3f7f9;--teal:#087e83;--deep:#102b3d;--soft:#e8f3f3;--gold:#d9a84e}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;line-height:1.5}
+a{color:inherit}button,input{font:inherit}button{cursor:pointer}
+.top{background:linear-gradient(120deg,#102b3d,#1b6472);color:#fff;padding:18px clamp(16px,3vw,38px) 24px}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:16px;max-width:1600px;margin:auto}.back{color:#d1e9e9;text-decoration:none;font-size:13px;font-weight:700}.tag{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#b8d9dc;font-weight:800}
+h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{margin:0;color:#d1e2e8;max-width:760px;font-size:14px}
+.wrap{max-width:1600px;margin:22px auto;padding:0 clamp(12px,2vw,28px)}
+.intro{display:flex;align-items:center;justify-content:space-between;gap:20px;margin:0 0 18px}.intro strong{font-size:15px}.intro span{font-size:12px;color:var(--muted)}
+.layout{display:grid;grid-template-columns:270px minmax(360px,1fr) 300px;gap:16px;align-items:start}
+.panel{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 22px #16364b0a}
+.nav{padding:14px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+.panel-title{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#7b909b;font-weight:800;margin:4px 8px 10px}
+.topic{display:flex;width:100%;text-align:left;gap:10px;align-items:flex-start;padding:10px 9px;border:0;background:transparent;border-radius:10px;color:var(--ink);margin:2px 0}
+.topic:hover{background:#f1f7f8}.topic.active{background:#e4f1f1;color:#075e67}.num{flex:none;width:25px;height:25px;border-radius:8px;background:#edf2f4;color:#59717d;display:grid;place-items:center;font-size:11px;font-weight:800}.topic.active .num{background:#087e83;color:#fff}.topic b{font-size:12px;line-height:1.35;display:block}.topic small{font-size:10px;color:#82949d;display:block;margin-top:3px}
+.viewer{overflow:hidden}.viewer-head{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}.viewer-head b{font-size:14px}.viewer-head small{display:block;color:var(--muted);font-size:11px}
+.actions{display:flex;gap:6px;flex-wrap:wrap}.btn{border:1px solid var(--line);background:#fff;color:#315062;border-radius:9px;padding:7px 10px;font-size:11px;font-weight:750}.btn:hover{background:#eff6f6}.btn.primary{background:#087e83;color:#fff;border-color:#087e83}.btn.dark{background:#17384b;color:#fff;border-color:#17384b}
+#stage{height:570px;min-height:420px;background:radial-gradient(circle at 50% 42%,#f8fbfc,#e6eef2 75%);position:relative;touch-action:none}#stage canvas{display:block;width:100%;height:100%}
+.hint{position:absolute;left:14px;bottom:12px;padding:7px 10px;background:#ffffffd9;border:1px solid #dce6eb;border-radius:8px;color:#637985;font-size:10px;pointer-events:none}
+.stage-tools{padding:10px 14px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center;flex-wrap:wrap}.stage-tools label{font-size:11px;color:var(--muted);font-weight:700}.stage-tools input{accent-color:#087e83;max-width:150px}
+.topic-info{padding:16px;border-bottom:1px solid var(--line)}.eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#078187;font-weight:850}.topic-info h2{font-size:20px;line-height:1.2;margin:6px 0 8px}.topic-info p{font-size:12px;color:#617784;margin:0}.callout{margin-top:12px;padding:10px 11px;background:#f0f7f7;border-left:3px solid #159195;border-radius:7px;font-size:11px;color:#45616e}
+.right{overflow:hidden}.right-section{padding:14px 15px;border-bottom:1px solid var(--line)}.right-section:last-child{border:0}.right-section h3{font-size:12px;margin:0 0 9px}.structure-list{max-height:300px;overflow:auto}.structure{width:100%;display:flex;justify-content:space-between;gap:8px;text-align:left;padding:8px 7px;border:0;border-radius:7px;background:transparent;font-size:11px;color:#355263}.structure:hover,.structure.selected{background:#eaf3f4;color:#056d73}.structure em{font-style:normal;color:#8ba0aa;font-size:9px;white-space:nowrap}
+.detail-name{font-size:15px;font-weight:800;margin-bottom:2px}.latin{font-size:10px;color:#84959d;font-style:italic;margin-bottom:10px}.field{margin:9px 0}.field b{display:block;color:#718692;text-transform:uppercase;letter-spacing:.08em;font-size:9px;margin-bottom:3px}.field p{margin:0;font-size:11px;color:#29495b}
+.movement-box{display:none;padding:12px 14px;background:#f5f9fa;border-top:1px solid var(--line)}.movement-box.show{display:block}.movement-box select{width:100%;padding:8px;border:1px solid var(--line);border-radius:8px;background:white;font-size:11px;color:var(--ink)}.movement-box input{width:100%;accent-color:#087e83}.movement-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin:8px 0 3px}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:#59727f;font-size:13px;background:#edf3f5}.error{color:#a33;background:#fff2f2;padding:12px;border-radius:8px;font-size:12px}
+.foot{max-width:1600px;margin:14px auto 28px;padding:0 28px;color:#82939b;font-size:10px}
+@media(max-width:1150px){.layout{grid-template-columns:230px minmax(320px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.right-section{border-right:1px solid var(--line)}#stage{height:520px}}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.nav{position:static;max-height:none}.topic-grid{display:grid;grid-template-columns:1fr 1fr}.right{grid-column:auto;display:block}.right-section{border-right:0}#stage{height:440px;min-height:360px}.viewer-head{align-items:flex-start;flex-direction:column}.intro{align-items:flex-start;flex-direction:column}.foot{padding:0 16px}}
+</style>
 </head>
 <body>
-  <header><a href="../../index.html">← Volver a los módulos TOR</a></header>
-  <main><section>
-    <h1>Sistema muscular y tendinoso de la mano</h1>
-    <p>Sección de estudio de la Biblioteca TOR.</p>
-    <div class="note">Esta carpeta ya está creada. Aquí organizaremos el material, las explicaciones, imágenes, esquemas y actividades correspondientes a este módulo.</div>
-  </section></main>
+<header class="top">
+ <div class="topline"><a class="back" href="../../index.html">← Volver a los módulos TOR</a><span class="tag">Laboratorio anatómico interactivo</span></div>
+ <h1>La mano · Modelo anatómico 3D</h1>
+ <p>Explora los huesos, músculos, tendones, vainas, poleas, nervios, vasos y movimientos de la mano desde trece temas de estudio.</p>
+</header>
+<main class="wrap">
+ <div class="intro"><strong>Selecciona un tema y explora sus estructuras en 3D.</strong><span>Modelo didáctico · mano derecha · vista palmar y dorsal</span></div>
+ <div class="layout">
+  <aside class="panel nav"><div class="panel-title">Temario de mano</div><div id="topicList" class="topic-grid"></div></aside>
+  <section class="panel viewer">
+   <div class="viewer-head"><div><b id="viewerTitle">Modelo anatómico completo</b><small>Arrastra para rotar · rueda para acercar · selecciona una estructura para estudiarla</small></div>
+    <div class="actions"><button class="btn" id="palmar">Palmar</button><button class="btn" id="dorsal">Dorsal</button><button class="btn" id="reset">Restablecer</button><button class="btn primary" id="export">Exportar GLB</button></div>
+   </div>
+   <div id="stage"><div class="loading" id="loading">Construyendo el modelo anatómico…</div><div class="hint">Girar: arrastrar · Zoom: rueda · Seleccionar: clic</div></div>
+   <div class="stage-tools"><button class="btn" id="showAll">Mostrar todo</button><label for="depth">Profundidad anatómica</label><input id="depth" type="range" min="1" max="3" step="1" value="1"><span id="depthLabel" style="font-size:10px;color:#718692">Todas las capas</span></div>
+   <div class="movement-box" id="movementBox"><select id="movementSelect"></select><div class="movement-row"><span>Posición inicial</span><b id="movementPct">0 %</b><span>Movimiento</span></div><input id="movementRange" type="range" min="0" max="100" value="0"><p id="movementNote" style="font-size:10px;color:#667d89;margin:7px 0 0"></p></div>
+  </section>
+  <aside class="panel right">
+   <div class="topic-info"><div class="eyebrow" id="topicKicker">Tema 01</div><h2 id="topicTitle">Anatomía ósea de la mano</h2><p id="topicDescription"></p><div class="callout" id="topicNote"></div></div>
+   <div class="right-section"><h3>Estructuras del tema <span id="count" style="color:#82949d;font-weight:500"></span></h3><div class="structure-list" id="structureList"></div></div>
+   <div class="right-section"><h3>Estructura seleccionada</h3><div id="detail"><span style="font-size:11px;color:#84959d">Selecciona una estructura en el modelo o en la lista.</span></div></div>
+  </aside>
+ </div>
+</main>
+<div class="foot">Material didáctico de Terapia Ocupacional · TOR. Las formas y trayectorias son representaciones esquemáticas para estudio; no sustituyen atlas anatómicos, valoración clínica ni imágenes diagnósticas.</div>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+await import("./modelo-mano.js");
+const TOR=window.TOR;
+const topics=[
+ {title:"Anatomía ósea de la mano",desc:"Identifica el carpo, los cinco metacarpianos y las falanges. Revisa la disposición de las dos filas del carpo y la arquitectura de cada dedo.",note:"El carpo reúne ocho huesos: escafoides, semilunar, piramidal y pisiforme en la fila proximal; trapecio, trapezoide, grande y ganchoso en la distal.",filter:s=>s.col==="HUESOS"},
+ {title:"Sistema muscular de la mano",desc:"Observa los vientres musculares y su relación con los tendones. Distingue los músculos que actúan sobre la muñeca y los dedos.",note:"Los músculos extrínsecos se originan en el antebrazo; los intrínsecos se originan e insertan dentro de la mano.",filter:s=>s.col==="MUSCULOS_EXTRINSECOS"||s.col==="MUSCULOS_INTRINSECOS"},
+ {title:"Músculos extrínsecos e intrínsecos",desc:"Compara los grupos extrínsecos flexores y extensores con los músculos tenares, hipotenares, lumbricales e interóseos.",note:"Los lumbricales e interóseos coordinan flexión metacarpofalángica y extensión interfalángica mediante el aparato extensor.",filter:s=>s.col==="MUSCULOS_EXTRINSECOS"||s.col==="MUSCULOS_INTRINSECOS"},
+ {title:"Sistema tendinoso flexor",desc:"Sigue los tendones del flexor superficial y profundo de los dedos y del flexor largo del pulgar desde la muñeca hasta sus inserciones.",note:"El FDS se divide en dos bandeletas para insertarse en la falange media; el FDP continúa hasta la falange distal.",filter:s=>s.col==="TENDONES_FLEXORES"||s.id.startsWith("musculo_fds")||s.id.startsWith("musculo_fdp")||s.id.startsWith("musculo_fpl")},
+ {title:"Sistema tendinoso extensor",desc:"Explora los tendones extensores que recorren el dorso de la mano y llegan a los dedos y al pulgar.",note:"Los tendones extensores se continúan con expansiones dorsales que distribuyen la fuerza hacia las articulaciones interfalángicas.",filter:s=>s.col==="TENDONES_EXTENSORES"||s.id.startsWith("musculo_ed")||s.id.startsWith("musculo_epl")||s.id.startsWith("musculo_epb")||s.id.startsWith("musculo_apl")},
+ {title:"Vainas sinoviales y fibrosas",desc:"Visualiza las envolturas que guían los tendones flexores en los dedos y facilitan su deslizamiento.",note:"La vaina fibrosa contiene y mantiene el tendón próximo al esqueleto; la vaina sinovial reduce la fricción durante el deslizamiento.",filter:s=>s.id.startsWith("vaina_sinovial")||s.id.startsWith("vaina_fibrosa")||s.id.startsWith("retinaculo")||s.id.startsWith("ligamento_anular")},
+ {title:"Poleas de los tendones flexores",desc:"Aísla las poleas anulares y cruciformes de los dedos y del pulgar para reconocer su posición sobre las falanges.",note:"Las poleas A2 y A4 son especialmente importantes para evitar el arqueamiento del tendón flexor (bowstringing).",filter:s=>s.id.startsWith("polea_")},
+ {title:"Aparato extensor de los dedos",desc:"Estudia la expansión extensora, la banda central, las bandas laterales y el tendón terminal en cada dedo.",note:"La banda central se inserta en la falange media; las bandas laterales convergen para formar el tendón terminal en la falange distal.",filter:s=>s.id.startsWith("tendon_extensor")||s.id.startsWith("expansion_extensora")||s.id.startsWith("banda_central")||s.id.startsWith("bandas_laterales")||s.id.startsWith("tendon_terminal")||s.id.startsWith("musculo_lumbrical")||s.id.startsWith("musculo_interoseo")},
+ {title:"Inervación de la mano",desc:"Diferencia los territorios motores y sensitivos del nervio mediano, ulnar y ramo superficial del radial.",note:"Mediano: región tenar y sensibilidad palmar radial. Ulnar: mayoría de intrínsecos y sensibilidad palmar ulnar. Radial superficial: sensibilidad dorsal radial.",filter:s=>s.sis==="nervioso"},
+ {title:"Irrigación sanguínea de la mano",desc:"Sigue las arterias radial y ulnar y sus conexiones en los arcos palmares y ramas digitales.",note:"Los arcos palmares superficial y profundo se comunican y dan origen a ramas que contribuyen a la irrigación de los dedos.",filter:s=>s.sis==="vascular"},
+ {title:"Biomecánica y movimientos de la mano",desc:"Anima flexión, extensión, abducción, aducción, oposición y movimientos de muñeca. Observa las articulaciones y los músculos participantes.",note:"El movimiento funcional surge de la acción coordinada de articulaciones, músculos, tendones y estabilizadores.",filter:s=>true,movement:true},
+ {title:"Articulaciones y ligamentos de la mano",desc:"Explora las articulaciones radiocarpiana, intercarpianas, carpometacarpianas, metacarpofalángicas e interfalángicas y sus estabilizadores.",note:"Las placas palmares, ligamentos colaterales y retináculos contribuyen a la estabilidad y guían el movimiento articular.",filter:s=>s.sis==="articulaciones"||s.sis==="ligamentoso"},
+ {title:"Lesiones y alteraciones funcionales",desc:"Relaciona lesiones frecuentes de músculos, tendones y poleas con las estructuras anatómicas que pueden verse afectadas.",note:"El modelo es una guía anatómica: no representa una lesión real ni permite diagnosticar. Revisa los ejemplos clínicos de la sección.",filter:s=>s.col==="TENDONES_FLEXORES"||s.col==="TENDONES_EXTENSORES"||s.col==="POLEAS"||s.col==="MUSCULOS_EXTRINSECOS"||s.col==="MUSCULOS_INTRINSECOS",clinical:true}
+];
+const movements=TOR.movimientos||[];
+const movementNames={"flexion_dedos":"Flexión de los dedos","extension_dedos":"Extensión de los dedos","abduccion_dedos":"Abducción de los dedos","aduccion_dedos":"Aducción de los dedos","flexion_pulgar":"Flexión del pulgar","extension_pulgar":"Extensión del pulgar","oposicion_pulgar":"Oposición del pulgar","reposicion_pulgar":"Reposición del pulgar","flexion_muneca":"Flexión de la muñeca","extension_muneca":"Extensión de la muñeca","desviacion_radial":"Desviación radial","desviacion_cubital":"Desviación cubital"};
+const stage=document.getElementById("stage"),loading=document.getElementById("loading");
+const scene=new THREE.Scene();scene.background=new THREE.Color(0xe8f0f3);
+const camera=new THREE.PerspectiveCamera(34,stage.clientWidth/stage.clientHeight,.1,100);camera.position.set(4.7,2.5,6.7);
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(stage.clientWidth,stage.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;stage.appendChild(renderer.domElement);
+const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.07;controls.target.set(0,-.15,0);controls.minDistance=2.5;controls.maxDistance=12;
+scene.add(new THREE.HemisphereLight(0xffffff,0x9aabb5,2.0));
+const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(4,6,7);scene.add(key);
+const fill=new THREE.DirectionalLight(0xd8edff,1.2);fill.position.set(-5,1,-4);scene.add(fill);
+const rim=new THREE.DirectionalLight(0xffffff,.8);rim.position.set(0,-3,5);scene.add(rim);
+const grid=new THREE.GridHelper(8,24,0xc7d5dc,0xd7e1e6);grid.position.y=-2.15;grid.material.transparent=true;grid.material.opacity=.25;scene.add(grid);
+scene.add(TOR.root);
+TOR.root.rotation.y=.08;
+const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
+let active=0,visibleStructures=[];
+function showTopic(index){
+ active=index;const t=topics[index];
+ document.querySelectorAll(".topic").forEach((b,i)=>b.classList.toggle("active",i===index));
+ document.getElementById("topicKicker").textContent="Tema "+String(index+1).padStart(2,"0")+" / 13";
+ document.getElementById("topicTitle").textContent=t.title;document.getElementById("topicDescription").textContent=t.desc;document.getElementById("topicNote").textContent=t.note;
+ document.getElementById("viewerTitle").textContent=t.title;
+ document.getElementById("movementBox").classList.toggle("show",!!t.movement);
+ TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion.clear();TOR._capa=1;TOR._aplicar();
+ visibleStructures=TOR.estructuras.filter(s=>t.filter(s));
+ renderStructures();renderDetail(null);
+ document.getElementById("depth").value="1";document.getElementById("depthLabel").textContent="Todas las capas";
+ if(t.movement){const first=movements[0];if(first){document.getElementById("movementSelect").value=first.id;setMovement(first.id,0);}}else{TOR.resetPose();}
+}
+function renderStructures(){
+ const box=document.getElementById("structureList");box.innerHTML="";
+ const sorted=[...visibleStructures].sort((a,b)=>a.nombre.localeCompare(b.nombre,"es"));
+ document.getElementById("count").textContent="("+sorted.length+")";
+ sorted.forEach(s=>{const b=document.createElement("button");b.className="structure";b.dataset.id=s.id;b.innerHTML="<span></span><em></em>";b.querySelector("span").textContent=s.nombre;b.querySelector("em").textContent=s.abbr||s.dig||"";b.addEventListener("click",()=>selectStructure(s.id));box.appendChild(b);});
+ if(!sorted.length)box.innerHTML='<span style="font-size:11px;color:#84959d">No se encontraron estructuras para este apartado en la versión actual del modelo.</span>';
+}
+function renderDetail(s){
+ const el=document.getElementById("detail");
+ if(!s){el.innerHTML='<span style="font-size:11px;color:#84959d">Selecciona una estructura en el modelo o en la lista.</span>';return;}
+ const m=s.meta||{};el.innerHTML="";
+ const name=document.createElement("div");name.className="detail-name";name.textContent=s.nombre;el.appendChild(name);
+ const latin=document.createElement("div");latin.className="latin";latin.textContent=s.latin||"";el.appendChild(latin);
+ [["Origen",m.origen],["Inserción",m.insercion],["Acción / función",m.accion],["Inervación",m.inervacion],["Relaciones",m.relaciones||m.articulaciones],["Dato adicional",m.variacion]].forEach(([label,value])=>{if(!value||value==="—")return;const f=document.createElement("div");f.className="field";const b=document.createElement("b");b.textContent=label;const p=document.createElement("p");p.textContent=value;f.append(b,p);el.appendChild(f);});
+ document.querySelectorAll(".structure").forEach(b=>b.classList.toggle("selected",b.dataset.id===s.id));
+}
+function selectStructure(id){TOR.seleccionar(id);renderDetail(TOR.porId(id));}
+const topicList=document.getElementById("topicList");
+topics.forEach((t,i)=>{const b=document.createElement("button");b.className="topic";b.innerHTML='<span class="num">'+String(i+1).padStart(2,"0")+'</span><span><b></b><small>Explorar modelo 3D</small></span>';b.querySelector("b").textContent=t.title;b.addEventListener("click",()=>showTopic(i));topicList.appendChild(b);});
+function setMovement(id,value){const m=movements.find(x=>x.id===id);if(!m)return;TOR.pose(id,value/100);document.getElementById("movementPct").textContent=value+" %";document.getElementById("movementNote").textContent=m.detalle+" "+m.estables;}
+const movementSelect=document.getElementById("movementSelect");
+movements.forEach(m=>{const o=document.createElement("option");o.value=m.id;o.textContent=movementNames[m.id]||m.nombre;movementSelect.appendChild(o);});
+movementSelect.addEventListener("change",()=>setMovement(movementSelect.value,0));
+document.getElementById("movementRange").addEventListener("input",e=>setMovement(movementSelect.value,+e.target.value));
+document.getElementById("depth").addEventListener("input",e=>{const n=+e.target.value;TOR.capa(n);document.getElementById("depthLabel").textContent=["","Superficial + todas","Capas media y profunda","Solo profunda"][n];});
+document.getElementById("showAll").addEventListener("click",()=>{TOR.mostrarTodo();showTopic(active);});
+document.getElementById("reset").addEventListener("click",()=>{TOR.mostrarTodo();TOR.resetPose();camera.position.set(4.7,2.5,6.7);controls.target.set(0,-.15,0);controls.update();showTopic(active);});
+document.getElementById("palmar").addEventListener("click",()=>{camera.position.set(0,1.1,8);controls.target.set(0,-.1,0);controls.update();});
+document.getElementById("dorsal").addEventListener("click",()=>{camera.position.set(0,1.1,-8);controls.target.set(0,-.1,0);controls.update();});
+document.getElementById("export").addEventListener("click",()=>TOR.exportarGLB(result=>{if(result?.error)alert("No se pudo exportar: "+result.error);else alert("Modelo exportado: "+result.nombre);}));
+renderer.domElement.addEventListener("pointerup",e=>{if(e.button!==0)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(pointer,camera);const hits=ray.intersectObject(TOR.root,true);if(!hits.length)return;let obj=hits[0].object;while(obj&&!obj.userData?.id)obj=obj.parent;if(obj?.userData?.id){const id=obj.userData.id;if(visibleStructures.some(s=>s.id===id))selectStructure(id);}});
+if(topics[12].clinical){
+ const t=topics[12];t.note+=" Ejemplos: dedo en gatillo (polea A1 y deslizamiento flexor), dedo en martillo (tendón extensor terminal), lesión tipo boutonnière (banda central), lesión del FDP tipo jersey finger y tenosinovitis de De Quervain (APL/EPB).";
+}
+showTopic(0);loading.remove();
+function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
+new ResizeObserver(resize).observe(stage);
+function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}animate();
+</script>
 </body>
 </html>
