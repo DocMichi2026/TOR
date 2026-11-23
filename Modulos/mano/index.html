@@ -68,7 +68,16 @@ import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.m
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,35)));
 document.getElementById("loading").textContent="Preparando geometría anatómica optimizada…";
-await import("./modelo-mano.js");
+try {
+ await import("./modelo-mano.js");
+} catch(error) {
+ console.error("Error cargando modelo anatómico:",error);
+ const box=document.getElementById("loading");
+ box.style.display="grid";
+ box.innerHTML="<div style=\"max-width:420px;text-align:center;padding:24px\"><b>No se pudo iniciar el modelo 3D</b><p style=\"font-size:12px;margin-top:8px\">Comprueba tu conexión e inténtalo de nuevo. Si continúa, abre la consola del navegador y comparte el error.</p><small></small></div>";
+ box.querySelector("small").textContent=String(error?.message||error);
+ throw error;
+}
 const TOR=window.TOR;
 const topics=[
  {title:"Anatomía ósea de la mano",desc:"Identifica el carpo, los cinco metacarpianos y las falanges. Revisa la disposición de las dos filas del carpo y la arquitectura de cada dedo.",note:"El carpo reúne ocho huesos: escafoides, semilunar, piramidal y pisiforme en la fila proximal; trapecio, trapezoide, grande y ganchoso en la distal.",filter:s=>s.col==="HUESOS"},
@@ -109,7 +118,7 @@ function showTopic(index){
  document.getElementById("topicTitle").textContent=t.title;document.getElementById("topicDescription").textContent=t.desc;document.getElementById("topicNote").textContent=t.note;
  document.getElementById("viewerTitle").textContent=t.title;
  document.getElementById("movementBox").classList.toggle("show",!!t.movement);
- TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion=null;TOR._capa=1;TOR._aplicar();
+ TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion.clear();TOR._capa=1;TOR._aplicar();
  visibleStructures=TOR.estructuras.filter(s=>t.filter(s));
  renderStructures();renderDetail(null);renderStudyGuide();
  document.getElementById("depth").value="1";document.getElementById("depthLabel").textContent="Todas las capas";
