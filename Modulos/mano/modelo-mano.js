@@ -64,7 +64,7 @@ function hash3(x,y,z,s){const v=Math.sin(x*127.1+y*311.7+z*74.7+s*13.37)*43758.5
 
 function tubeGeo(pts,rFn,opt){
   opt=opt||{};
-  const tub=Math.min(opt.tub||36,28),rad=Math.min(opt.rad||11,10),sq=opt.sq===undefined?1:opt.sq;
+  const tub=Math.min(opt.tub||36,36),rad=Math.min(opt.rad||12,12),sq=opt.sq===undefined?1:opt.sq;
   const c=new THREE.CatmullRomCurve3(pts.map(p=>p.clone()),false,'catmullrom',0.3);
   const fr=c.computeFrenetFrames(tub,false);
   const pos=[],nor=[],idx=[],uvs=[];
@@ -88,9 +88,9 @@ function tubeGeo(pts,rFn,opt){
   g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
   g.setIndex(idx);return g;
 }
-function sph(r,p,seg,ring){return new THREE.SphereGeometry(r,Math.min(seg||14,10),Math.min(ring||10,8)).translate(p.x,p.y,p.z);}
+function sph(r,p,seg,ring){return new THREE.SphereGeometry(r,Math.min(seg||18,18),Math.min(ring||12,12)).translate(p.x,p.y,p.z);}
 function blob(rx,ry,rz,seed,detail){
-  const g=new THREE.SphereGeometry(1,14,10),a=g.attributes.position,d=detail===undefined?0.06:detail;
+  const g=new THREE.SphereGeometry(1,18,12),a=g.attributes.position,d=detail===undefined?0.06:detail;
   for(let i=0;i<a.count;i++){
     const x=a.getX(i),y=a.getY(i),z=a.getZ(i),n=1+d*hash3(x*3,y*3,z*3,seed||1);
     a.setXYZ(i,x*rx*n,y*ry*n,z*rz*n);
@@ -1387,7 +1387,7 @@ TOR._aplicar=function(){
     if(this._ocultos.has(s.id)||capaDe(s)<this._capa)return;
     if(this.seleccion.has(s.id)){
       s.mat.emissive.setHex(this.acento);
-      s.mat.emissiveIntensity=0.55;
+      s.mat.emissiveIntensity=0.82;
     }else{
       s.mat.transparent=true;
       s.mat.opacity=this.fondoOpacidad*s.baseO;
