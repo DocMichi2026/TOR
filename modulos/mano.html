@@ -189,6 +189,377 @@ footer{text-align:center;color:#8a9bad;font-size:11px;padding:35px 15px}
 }
 </style>
 </head>
+<!-- =====================================================================
+  TO STUDY · LABORATORIO 3D (apoyo visual)
+  INSTALACIÓN: pega este bloque completo justo ANTES de </body> en tu HTML de estudio.
+  Requisitos:
+   · modelo3d/tor-engine.js junto al HTML (ruta relativa; sirve en GitHub Pages)
+   · Internet (three.js 0.160.0 desde cdn.jsdelivr.net, HTTPS)
+  El motor y three.js se cargan SOLO cuando la persona pulsa "Ver en 3D" o "Cargar modelo 3D".
+  Este bloque inserta por sí mismo: la sección #laboratorio, su enlace del índice lateral y los
+  botones "Ver en 3D" dentro de los apartados de estudio. No modifica tu contenido existente.
+====================================================================== -->
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+
+<style>
+/* ---- TOR 3D ---- */
+[hidden]{display:none!important}
+.vis-cta{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#eef9f8;border:1px dashed var(--teal);border-radius:14px;padding:14px 17px;margin:18px 0 0}
+.vis-cta p{margin:2px 0 0;font-size:13px;color:#456}
+.vis-cta .acts{display:flex;gap:8px;flex-wrap:wrap}
+.lab-top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.lab-view{width:100%;height:min(62vh,560px);min-height:340px;border-radius:14px;overflow:hidden;background:#eef6fb;border:1px solid var(--line);touch-action:none;margin-top:10px}
+.lab-view canvas{display:block;width:100%;height:100%}
+.lab-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.lab-row input[type=range]{flex:1;min-width:140px;accent-color:var(--blue)}
+.lab-row label{display:flex;gap:8px;align-items:center;font-size:13px}
+.btn[aria-pressed="true"]{background:var(--navy)}
+#lab-obs,#lab-info{margin-top:12px}
+#lab-obs details,#lab-info details{margin-top:8px;font-size:13px}
+summary{cursor:pointer;font-weight:700;color:var(--navy)}
+#lab-info dt{font-weight:700;color:var(--navy);margin-top:7px;font-size:12px}
+#lab-info dd{margin:0;font-size:13px;color:#4f6479}
+</style>
+
+<script>
+(() => {
+'use strict';
+const ENGINE = 'modelo3d/tor-engine.js';
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const bone = s => s.col === 'HUESOS';
+const R = r => s => r.test(s.id);
+const C = c => s => s.col === c;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ===== ESCENAS DIDÁCTICAS (cada una responde a un apartado del estudio) ===== */
+const SC = {
+ org_ext:{t:'Músculos extrínsecos', sel:C('MUSCULOS_EXTRINSECOS'), cam:'palmar',
+  obs:'Los vientres musculares se ven en el antebrazo, proximales a la muñeca. Solo sus tendones cruzan hacia la mano.',
+  q:'¿Qué parte de estos músculos llega a la mano?', a:'Sus tendones; el vientre muscular permanece en el antebrazo.'},
+ org_int:{t:'Músculos intrínsecos', sel:C('MUSCULOS_INTRINSECOS'), cam:'palmar',
+  obs:'Todo el músculo, de origen a inserción, está dentro de la mano: eminencia tenar, eminencia hipotenar y planos profundos entre los metacarpianos.',
+  q:'¿Dónde se ubican el grupo tenar y el hipotenar?', a:'El tenar en la base del pulgar; el hipotenar en el borde cubital de la palma.'},
+ flexores:{t:'Flexores largos de los dedos', sel:R(/^musculo_(fds|fdp|fpl)$|^tendon_flexor_(superficial|profundo|largo)/), cam:'palmar',
+  obs:'Sigue cada tendón desde el antebrazo, a través de la muñeca, hasta el dedo. En cada dedo largo hay dos tendones: uno superficial y uno profundo.',
+  q:'¿A qué falange llega cada tendón?', a:'El flexor profundo llega a la falange distal; el superficial se inserta en la falange media.'},
+ extensores:{t:'Extensores largos', sel:R(/^musculo_(ed|ei|edm|epl|epb|apl)$|^tendon_(extensor|abductor)_/), cam:'dorsal',
+  obs:'Desde el dorso del antebrazo, los tendones pasan por la muñeca y se dirigen a la cara dorsal de los dedos y del pulgar.',
+  q:'¿Qué nervio inerva los extensores digitales?', a:'El nervio interóseo posterior.'},
+ tenar:{t:'Grupo tenar', sel:R(/^musculo_(abductor_corto_pulgar|flexor_corto_pulgar|oponente_pulgar|aductor_pulgar_)/), cam:'palmar',
+  obs:'Localiza los músculos de la base del pulgar. El aductor ocupa un plano más profundo que el resto.',
+  q:'¿Qué músculo de este grupo no recibe la inervación mediana habitual?', a:'El aductor del pulgar, inervado por la rama profunda del cubital. La cabeza profunda del flexor corto puede tener inervación cubital.'},
+ hipotenar:{t:'Grupo hipotenar', sel:R(/^musculo_(abductor_menique|flexor_corto_menique|oponente_menique|palmar_corto)$/), cam:'palmar',
+  obs:'Estos músculos forman la eminencia del borde cubital de la palma y se dirigen al quinto dedo.',
+  q:'¿Qué nervio inerva este grupo?', a:'El cubital: rama profunda para la mayoría y rama superficial para el palmar corto.'},
+ lumbricales:{t:'Lumbricales', sel:R(/^musculo_lumbrical_/), keep:R(/^musculo_lumbrical_|^tendon_flexor_profundo_|^expansion_extensora_/), cam:'palmar',
+  obs:'Nacen de los tendones del flexor profundo, en la palma, y se dirigen al lado dorsal del dedo para integrarse en la expansión extensora. La geometría del modelo es esquemática.',
+  q:'¿Por qué flexionan la MCF y a la vez ayudan a extender las IF?', a:'Pasan por delante del eje de la MCF (flexión) y se insertan en la expansión extensora dorsal, por lo que tiran sobre las IFP e IFD en sentido de extensión.'},
+ interoseos:{t:'Interóseos', sel:R(/^musculo_interoseo_/), cam:'dorsal',
+  obs:'Se ubican entre los metacarpianos. Compara los dorsales (cuatro) con los palmares (tres).',
+  q:'¿Qué dedo es el eje de referencia para abducir y aducir?', a:'El tercer dedo (medio). Dorsales abducen; palmares aducen.'},
+ poleas:{t:'Poleas y vaina fibrosa', sel:R(/^polea_/), keep:R(/^polea_|^vaina_fibrosa_|^tendon_flexor_(superficial|profundo)_/), cam:'radial',
+  obs:'Observa cómo las poleas rodean los tendones flexores a lo largo de las falanges y de las articulaciones.',
+  q:'¿Qué dos poleas son especialmente importantes frente al arqueamiento de los tendones?', a:'A2 y A4.'},
+ extensor_mec:{t:'Aparato extensor dorsal', sel:R(/^(banda_central|bandas_laterales|tendon_terminal_extensor)_/),
+  keep:R(/^(expansion_extensora|banda_central|bandas_laterales|tendon_terminal_extensor|tendon_extensor_dedos|ligamento_sagital)_/), cam:'dorsal',
+  obs:'Sigue el tendón extensor hasta la expansión sobre la falange proximal y compara la banda central con las bandas laterales.',
+  q:'¿Qué banda se asocia a la extensión de la IFP y cuáles a la IFD?', a:'La banda central a la IFP; las bandas laterales, reunidas en el tendón terminal, a la IFD.'},
+ fdp_fds:{t:'Flexor superficial y profundo del índice', sel:R(/^tendon_flexor_(superficial|profundo)_indice$/),
+  keep:R(/^(tendon_flexor_(superficial|profundo)|polea_A[1-5])_indice$/), cam:'radial',
+  obs:'Observa cómo el tendón superficial se abre y el profundo avanza entre sus bandeletas hasta la falange distal.',
+  q:'Si el flexor profundo está seccionado y el superficial intacto, ¿qué articulación pierde flexión activa?', a:'La IFD. El flexor superficial actúa sobre la IFP.'},
+ mov_flexion_dedos:{t:'Flexión de los dedos', mov:'flexion_dedos', cam:'cubital',
+  obs:'Mueve el deslizador. Radio, ulna y carpo permanecen fijos; cambian MCF, IFP e IFD.',
+  q:'¿Qué tendones se acortan y cuáles se alargan pasivamente?', a:'Se acortan los flexores (superficial y profundo); se alargan los extensores y su expansión.'},
+ mov_extension_dedos:{t:'Extensión de los dedos', mov:'extension_dedos', cam:'cubital',
+  obs:'Compara qué estructuras participan y cómo se distribuye la fuerza por el dorso del dedo.',
+  q:'¿Qué papel tiene el aparato extensor?', a:'Distribuye la fuerza del extensor y de los intrínsecos hacia la banda central (IFP) y las bandas laterales (IFD).'},
+ mov_abduccion_dedos:{t:'Abducción de los dedos', mov:'abduccion_dedos', cam:'dorsal',
+  obs:'Observa los interóseos dorsales y la separación de los dedos respecto al eje del dedo medio.',
+  q:'¿Qué músculos producen la abducción?', a:'Los interóseos dorsales, con referencia en el dedo medio.'},
+ mov_oposicion_pulgar:{t:'Oposición del pulgar', mov:'oposicion_pulgar', cam:'palmar',
+  obs:'Sigue el primer metacarpiano: el movimiento se origina en la base del pulgar.',
+  q:'¿En qué articulación ocurre principalmente la oposición?', a:'En la carpometacarpiana del pulgar (trapecio y primer metacarpiano), con apoyo de la MCF y la IF.'}
+};
+
+/* ===== BOTONES "VER EN 3D" EN LOS APARTADOS ===== */
+const CTAS = [
+ ['organizacion','Antes de memorizar la tabla, compara dónde están los vientres musculares de cada grupo.',[['org_ext','Ver extrínsecos'],['org_int','Ver intrínsecos']]],
+ ['extrinsecos','Sigue cada tendón desde el antebrazo hasta el dedo y comprueba qué falange alcanza.',[['flexores','Flexores largos'],['extensores','Extensores largos']]],
+ ['intrinsecos','Localiza cada grupo en la mano antes de repasar su inervación.',[['tenar','Tenar'],['hipotenar','Hipotenar'],['lumbricales','Lumbricales'],['interoseos','Interóseos']]],
+ ['tendones','Observa cómo las poleas mantienen el tendón cerca de la falange.',[['poleas','Poleas y vaina']]],
+ ['mecanismo','El aparato extensor cuesta imaginarlo en plano: míralo desde el dorso.',[['extensor_mec','Aparato extensor'],['mov_extension_dedos','Extensión de los dedos']]],
+ ['funcion','Mueve el modelo y compara qué estructuras participan en cada movimiento.',[['mov_flexion_dedos','Flexión'],['mov_extension_dedos','Extensión'],['mov_abduccion_dedos','Abducción'],['mov_oposicion_pulgar','Oposición del pulgar']]],
+ ['clinica','Visualiza por qué una lesión del flexor profundo y otra del superficial alteran la flexión de forma distinta.',[['fdp_fds','Superficial y profundo']]]
+];
+
+/* ===== INSERCIÓN DE INTERFAZ ===== */
+const secHTML = `
+<div class="section-head">
+ <div class="kicker">Apoyo visual</div>
+ <h2>Laboratorio 3D</h2>
+ <p class="lead">Modelo esquemático de la mano para reforzar lo estudiado. Úsalo después de leer cada apartado: primero predice, luego observa. No sustituye un atlas anatómico.</p>
+</div>
+<div class="card">
+ <div id="lab-gate">
+  <p>El modelo se carga solo cuando lo necesitas. Requiere conexión a internet.</p>
+  <div class="actions"><button class="btn" id="lab-load">Cargar modelo 3D</button></div>
+ </div>
+ <p class="small" id="lab-msg" role="status"></p>
+ <div id="lab-app" hidden>
+  <div class="lab-top"><h3 id="lab-title">Modelo completo</h3><button class="btn secondary" id="lab-back" hidden>↩ Volver al apartado</button></div>
+  <div id="lab-view" class="lab-view" role="img" aria-label="Visor 3D de la mano. Arrastra para rotar, rueda para acercar."></div>
+  <div class="actions">
+   <button class="btn secondary" data-cam="palmar">Palmar</button>
+   <button class="btn secondary" data-cam="dorsal">Dorsal</button>
+   <button class="btn secondary" data-cam="radial">Radial</button>
+   <button class="btn secondary" data-cam="cubital">Cubital</button>
+   <button class="btn secondary" id="lab-reset">Restablecer escena</button>
+   <button class="btn secondary" id="lab-all">Mostrar todo</button>
+   <button class="btn secondary" id="lab-side" aria-pressed="false">Mano derecha</button>
+  </div>
+  <div class="lab-row">
+   <label>Movimiento <select id="lab-mov"></select></label>
+   <input type="range" id="lab-t" min="0" max="100" value="0" aria-label="Progreso del movimiento">
+   <button class="btn secondary" id="lab-play">▶ Animar</button>
+  </div>
+  <div class="lab-row">
+   <label>Capas <select id="lab-capa"><option value="1">Todas</option><option value="2">Quitar plano superficial</option><option value="3">Solo planos profundos</option></select></label>
+   <label>Opacidad del resto <input type="range" id="lab-op" min="5" max="80" value="34"></label>
+   <label><input type="checkbox" id="lab-quiz"> Autoevaluación (ocultar nombres)</label>
+  </div>
+  <div class="info" id="lab-obs" aria-live="polite"></div>
+  <div class="info" id="lab-info" aria-live="polite"></div>
+ </div>
+</div>`;
+const sec = document.createElement('section');
+sec.className = 'section'; sec.id = 'laboratorio'; sec.innerHTML = secHTML;
+const anchor = $('#actividades'); (anchor ? anchor.before(sec) : ($('main') || document.body).appendChild(sec));
+const navA = $('.sidebar a[href="#explorador"]');
+if (navA) { const l = document.createElement('a'); l.href = '#laboratorio'; l.innerHTML = '<span class="num">3D</span>Laboratorio 3D'; navA.after(l); }
+CTAS.forEach(([id, txt, btns]) => {
+ const s = $('#' + id); if (!s) return;
+ const d = document.createElement('div'); d.className = 'vis-cta';
+ d.innerHTML = '<div><strong>Apoyo visual</strong><p>' + esc(txt) + '</p></div><div class="acts">' +
+  btns.map(([sc, lb]) => '<button class="btn" data-scene="' + sc + '">Ver en 3D: ' + esc(lb) + '</button>').join('') + '</div>';
+ s.appendChild(d);
+});
+
+/* ===== ESTADO ===== */
+let ready = false, loading = null, T3 = null, renderer, scene3, camera, controls, mirror;
+let origin = null, cur = null, camGoal = null, visible = false, quiz = false, reveal = false, lastId = null;
+const play = {on:false, dir:1, t:0};
+const TARGET = [0, 0.2, 0];
+const msg = t => { $('#lab-msg').textContent = t || ''; };
+
+/* ===== CARGA DIFERIDA ===== */
+function ensure() {
+ if (ready) return Promise.resolve();
+ if (loading) return loading;
+ loading = (async () => {
+  try {
+   msg('Cargando three.js…');
+   const [T, U, O, E] = await Promise.all([
+    import('three'), import('three/addons/utils/BufferGeometryUtils.js'),
+    import('three/addons/controls/OrbitControls.js'), import('three/addons/exporters/GLTFExporter.js')]);
+   window.THREE = T; window.mergeGeometries = U.mergeGeometries; window.GLTFExporter = E.GLTFExporter;
+   msg('Construyendo el modelo anatómico…');
+   await new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)));
+   await new Promise((ok, ko) => {
+    const s = document.createElement('script'); s.src = ENGINE;
+    s.onload = ok; s.onerror = () => ko(new Error('No se encontró ' + ENGINE + '. Comprueba que la carpeta modelo3d esté junto a este HTML.'));
+    document.head.appendChild(s);
+   });
+   if (typeof TOR === 'undefined') throw new Error('El motor se cargó pero no definió TOR.');
+   build(T, O.OrbitControls);
+   ready = true; msg('');
+   $('#lab-gate').hidden = true; $('#lab-app').hidden = false;
+   resize(); showAll();
+  } catch (e) {
+   loading = null;
+   msg('No se pudo cargar el laboratorio 3D: ' + e.message);
+   throw e;
+  }
+ })();
+ return loading;
+}
+
+/* ===== VISOR ===== */
+function build(T, Orbit) {
+ T3 = T;
+ const box = $('#lab-view');
+ renderer = new T.WebGLRenderer({antialias:true});
+ renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+ box.appendChild(renderer.domElement);
+ scene3 = new T.Scene(); scene3.background = new T.Color(0xeef6fb);
+ camera = new T.PerspectiveCamera(38, 1, 0.1, 100);
+ scene3.add(new T.HemisphereLight(0xffffff, 0x8899aa, 0.9));
+ const k = new T.DirectionalLight(0xffffff, 1.0); k.position.set(3, 6, 8); scene3.add(k);
+ const f = new T.DirectionalLight(0xffffff, 0.45); f.position.set(-5, -2, -6); scene3.add(f);
+ /* Eje: +Y proximal. Se gira para mostrar los dedos hacia arriba. Se espeja porque el modelo
+    (palma +Z, pulgar +X) corresponde a una mano izquierda; el botón "Mano" permite invertirlo. */
+ const pivot = new T.Group(); pivot.rotation.z = Math.PI;
+ mirror = new T.Group(); mirror.scale.x = -1;
+ mirror.add(TOR.root); pivot.add(mirror); scene3.add(pivot);
+ controls = new Orbit(camera, renderer.domElement);
+ controls.enableDamping = true; controls.minDistance = 3; controls.maxDistance = 26;
+ controls.target.set(...TARGET);
+ controls.addEventListener('start', () => { camGoal = null; });
+ new ResizeObserver(resize).observe(box);
+ new IntersectionObserver(e => { visible = e[0].isIntersecting; }).observe(box);
+ /* selección por clic (se descartan arrastres) */
+ const ray = new T.Raycaster(), m = new T.Vector2(); let d0 = null;
+ renderer.domElement.addEventListener('pointerdown', e => { d0 = [e.clientX, e.clientY]; });
+ renderer.domElement.addEventListener('pointerup', e => {
+  if (!d0 || Math.hypot(e.clientX - d0[0], e.clientY - d0[1]) > 4) return;
+  const r = renderer.domElement.getBoundingClientRect();
+  m.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(m, camera);
+  const h = ray.intersectObject(TOR.root, true).find(x => x.object.visible && x.object.userData.id && x.object.material.opacity >= 0.25);
+  if (h) { TOR.seleccionar(h.object.userData.id); showInfo(h.object.userData.id); }
+  else { TOR.limpiarSeleccion(); clearInfo(); }
+ });
+ setCam('palmar', true);
+ let last = performance.now();
+ (function loop(now) {
+  requestAnimationFrame(loop);
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  if (!visible) return;
+  if (play.on && $('#lab-mov').value) {
+   play.t += play.dir * dt * 0.4;
+   if (play.t >= 1) { play.t = 1; play.dir = -1; } if (play.t <= 0) { play.t = 0; play.dir = 1; }
+   $('#lab-t').value = Math.round(play.t * 100); TOR.pose($('#lab-mov').value, play.t);
+  }
+  if (camGoal) { camera.position.lerp(camGoal, 0.15); if (camera.position.distanceTo(camGoal) < 0.02) camGoal = null; }
+  controls.update(); renderer.render(scene3, camera);
+ })(last);
+ const sel = $('#lab-mov');
+ sel.innerHTML = '<option value="">Sin movimiento</option>';
+ [...new Set(TOR.movimientos.map(x => x.familia))].forEach(fm => {
+  const g = document.createElement('optgroup'); g.label = fm;
+  TOR.movimientos.filter(x => x.familia === fm).forEach(x => g.insertAdjacentHTML('beforeend', '<option value="' + x.id + '">' + esc(x.nombre) + '</option>'));
+  sel.appendChild(g);
+ });
+}
+function resize() {
+ if (!renderer) return;
+ const b = $('#lab-view'), w = b.clientWidth, h = b.clientHeight;
+ if (!w || !h) return;
+ renderer.setSize(w, h); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+function setCam(k, now) {
+ const side = mirror.scale.x < 0 ? 1 : -1;
+ const dir = {palmar:[0, 0, 1], dorsal:[0, 0, -1], radial:[side, 0.1, 0], cubital:[-side, 0.1, 0]}[k] || [0, 0, 1];
+ const dist = 12 * Math.max(1, 1.1 / camera.aspect);
+ const p = new T3.Vector3(TARGET[0] + dir[0] * dist, TARGET[1] + dir[1] * dist, TARGET[2] + dir[2] * dist);
+ if (now || reduce) { camera.position.copy(p); camGoal = null; } else camGoal = p;
+}
+
+/* ===== ESCENAS Y MOVIMIENTOS ===== */
+function header(sc) {
+ $('#lab-title').textContent = sc.t;
+ $('#lab-obs').innerHTML = '<strong>Qué observar</strong><p>' + esc(sc.obs) + '</p>' +
+  (sc.extra ? '<p class="small">' + esc(sc.extra) + '</p>' : '') +
+  (sc.q ? '<details><summary>Pregunta para pensar: ' + esc(sc.q) + '</summary><p>' + esc(sc.a) + '</p></details>' : '');
+}
+function stopPlay() { play.on = false; $('#lab-play').textContent = '▶ Animar'; }
+function showAll() {
+ stopPlay(); TOR.resetPose(); TOR.mostrarTodo(); cur = null;
+ $('#lab-mov').value = ''; $('#lab-t').value = 0; $('#lab-capa').value = '1';
+ header({t:'Modelo completo', obs:'Haz clic en cualquier estructura para ver su ficha. Arrastra para rotar y usa la rueda para acercar. También puedes elegir un movimiento o una capa.'});
+ clearInfo(); setCam('palmar');
+}
+function applyMov(mid, sc) {
+ sc = sc || SC['mov_' + mid] || {};
+ const m = TOR.movimientos.find(x => x.id === mid); if (!m) return;
+ stopPlay(); TOR.mostrarTodo(); TOR.aislarParticipantes(mid); TOR.limpiarSeleccion();
+ play.t = 0; play.dir = 1; $('#lab-mov').value = mid; $('#lab-t').value = 0; $('#lab-capa').value = '1'; TOR.pose(mid, 0);
+ const mus = m.musculos.map(i => TOR.porId(i)).filter(Boolean).map(s => s.nombre);
+ header({t:sc.t || m.nombre, obs:sc.obs || (m.detalle + ' ' + m.estables), q:sc.q, a:sc.a,
+  extra:mus.length ? 'Músculos que participan: ' + mus.join(', ') + '.' : ''});
+ clearInfo(); setCam(sc.cam || 'palmar');
+}
+function apply(id) {
+ const sc = SC[id]; if (!sc || !ready) return;
+ cur = id;
+ if (sc.mov) return applyMov(sc.mov, sc);
+ stopPlay(); TOR.resetPose(); TOR.mostrarTodo();
+ $('#lab-mov').value = ''; $('#lab-t').value = 0; $('#lab-capa').value = '1';
+ const keep = sc.keep || sc.sel;
+ /* ocultos: se usa el conjunto interno del motor para conservar huesos como referencia */
+ TOR._ocultos = new Set(TOR.estructuras.filter(s => !bone(s) && !keep(s)).map(s => s.id));
+ TOR.seleccionarVarios(TOR.estructuras.filter(sc.sel).map(s => s.id));
+ header(sc); clearInfo(); setCam(sc.cam || 'palmar');
+}
+
+/* ===== FICHA ===== */
+const LAB = {origen:'Origen', insercion:'Inserción', accion:'Acción', inervacion:'Inervación', articulaciones:'Articulaciones',
+ superficies:'Superficies', tipo:'Tipo', movimientos:'Movimientos', estabilizadores:'Estabilizadores', variacion:'Variación', relaciones:'Relaciones'};
+function clearInfo() {
+ lastId = null; reveal = false;
+ $('#lab-info').innerHTML = '<span class="small">Selecciona una estructura en el modelo para ver su ficha.</span>';
+}
+function showInfo(id) { lastId = id; reveal = false; renderInfo(); }
+function renderInfo() {
+ const s = lastId && TOR.porId(lastId); if (!s) return clearInfo();
+ if (quiz && !reveal) {
+  $('#lab-info').innerHTML = '<strong>¿Qué estructura es?</strong><p class="small">Región: ' + esc(s.region || '—') +
+   '. Piensa en su nombre, origen y función antes de revelar.</p><button class="btn" id="lab-reveal">Revelar nombre y ficha</button>';
+  return;
+ }
+ const rows = Object.keys(LAB).filter(k => s.meta[k] && s.meta[k] !== '—')
+  .map(k => '<dt>' + LAB[k] + '</dt><dd>' + esc(s.meta[k]) + '</dd>').join('');
+ $('#lab-info').innerHTML = '<h3>' + esc(s.nombre) + '</h3><p class="small">' + esc(s.latin) + (s.region ? ' · ' + esc(s.region) : '') + '</p><dl>' + rows + '</dl>';
+}
+
+/* ===== EVENTOS ===== */
+function openLab(id, from) {
+ origin = from;
+ const go = () => {
+  $('#lab-back').hidden = !origin;
+  apply(id);
+ };
+ $('#laboratorio').scrollIntoView({behavior:reduce ? 'auto' : 'smooth'});
+ ensure().then(go).catch(() => {});
+}
+document.addEventListener('click', e => {
+ const b = e.target.closest('[data-scene]'); if (b) openLab(b.dataset.scene, b.closest('.section'));
+});
+$('#lab-load').addEventListener('click', () => { origin = null; ensure().catch(() => {}); });
+$('#lab-back').addEventListener('click', () => { if (origin) origin.scrollIntoView({behavior:reduce ? 'auto' : 'smooth'}); });
+$('#lab-reset').addEventListener('click', () => { cur ? apply(cur) : showAll(); });
+$('#lab-all').addEventListener('click', () => { showAll(); });
+document.querySelectorAll('[data-cam]').forEach(b => b.addEventListener('click', () => { if (ready) setCam(b.dataset.cam); }));
+$('#lab-side').addEventListener('click', e => {
+ if (!ready) return;
+ mirror.scale.x *= -1;
+ const left = mirror.scale.x > 0;
+ e.target.textContent = left ? 'Mano izquierda' : 'Mano derecha'; e.target.setAttribute('aria-pressed', String(left));
+ setCam('palmar');
+});
+$('#lab-mov').addEventListener('change', e => {
+ if (!ready) return;
+ if (e.target.value) applyMov(e.target.value); else { stopPlay(); TOR.resetPose(); }
+});
+$('#lab-t').addEventListener('input', e => {
+ if (!ready) return;
+ if (!$('#lab-mov').value) applyMov('flexion_dedos');
+ stopPlay(); play.t = e.target.value / 100; TOR.pose($('#lab-mov').value, play.t);
+});
+$('#lab-play').addEventListener('click', () => {
+ if (!ready) return;
+ if (!$('#lab-mov').value) applyMov('flexion_dedos');
+ play.on = !play.on; $('#lab-play').textContent = play.on ? '❚❚ Pausar' : '▶ Animar';
+});
+$('#lab-capa').addEventListener('change', e => { if (ready) TOR.capa(+e.target.value); });
+$('#lab-op').addEventListener('input', e => { if (ready) TOR.opacidadFondo(e.target.value / 100); });
+$('#lab-quiz').addEventListener('change', e => { quiz = e.target.checked; reveal = false; if (lastId) renderInfo(); });
+$('#lab-info').addEventListener('click', e => { if (e.target.id === 'lab-reveal') { reveal = true; renderInfo(); } });
+})();
+</script>
 
 <body>
 <header class="topbar">
