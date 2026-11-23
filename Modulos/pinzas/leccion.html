@@ -17,7 +17,7 @@ main{max-width:1500px;margin:14px auto;padding:0 16px}.layout{display:grid;grid-
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script></head>
 <body><header><div class="topline"><a class="back" href="./index.html">← Todos los patrones</a><span class="tag">Laboratorio funcional 3D</span></div><h1 id="heading">Patrón de prensión</h1><p>Observa la configuración de los dedos, estudia los puntos de contacto y compara los patrones de prensión de la mano.</p></header>
-<main><div class="layout"><section class="panel"><div class="viewerhead"><div><b>Modelo funcional de la mano</b><small>Arrastra para girar · rueda para acercar · selecciona un patrón a la derecha</small></div><div class="actions"><button class="btn" id="front">Vista frontal</button><button class="btn" id="side">Vista lateral</button><button class="btn" id="reset">Restablecer</button><button class="btn primary" id="animate">▶ Animar patrón</button></div></div><div id="stage"><div class="loading" id="loading">Preparando modelo 3D…</div><div class="hint">Modelo esquemático · Pulgar y dedos articulados</div></div><div class="stagefoot"><span id="poseLabel">Posición de reposo</span><span>Representación didáctica, no escala anatómica exacta</span></div></section>
+<main><div class="layout"><section class="panel"><div class="viewerhead"><div><b>Modelo funcional de la mano</b><small>Arrastra para girar · rueda para acercar · selecciona un patrón a la derecha</small></div><div class="actions"><button class="btn" id="front">Vista frontal</button><button class="btn" id="side">Vista lateral</button><button class="btn" id="reset">Restablecer</button><button class="btn primary" id="animate">▶ Animar patrón</button></div></div><div id="stage"><div class="loading" id="loading">Preparando modelo 3D…</div><div class="hint">Vista palmar · dedos articulados y objetos de referencia</div></div><div class="stagefoot"><span id="poseLabel">Posición de reposo</span><span>Modelo didáctico de proporciones anatómicas aproximadas</span></div></section>
 <aside class="panel"><div class="info"><div class="eyebrow" id="kicker">Patrón 01 · Garra y prensión</div><h2 id="title">Garra circular</h2><p id="desc"></p><div class="callout" id="key"></div></div>
 <div class="study"><h3>Claves para estudiar</h3><div id="facts"></div></div>
 <div class="navtopics"><h3>Los 11 patrones</h3><div class="topiclist" id="topics"></div></div>
@@ -84,7 +84,6 @@ function makeHand(){
   lengths[i].forEach((len,j)=>{
    const pivot=new THREE.Group();parent.add(pivot);
    const ph=addPhalanx(pivot,len,radii[i]*(1-j*.13));
-   ph.position.y=len/2;
    // Falanges con leve estrechamiento distal y nudillos discretos.
    segs.push(pivot);
    if(j<2){const next=new THREE.Group();next.position.y=len;pivot.add(next);parent=next;}
@@ -96,7 +95,7 @@ function makeHand(){
  const thumbSegs=[];let tp=thumb;
  [.53,.43].forEach((len,j)=>{
   const pivot=new THREE.Group();tp.add(pivot);
-  const ph=addPhalanx(pivot,len,j===0?.145:.12);ph.position.y=len/2;
+  const ph=addPhalanx(pivot,len,j===0?.145:.12);
   thumbSegs.push(pivot);
   if(j===0){const next=new THREE.Group();next.position.y=len;pivot.add(next);tp=next;}
  });
