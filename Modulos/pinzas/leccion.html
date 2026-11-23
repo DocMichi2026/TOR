@@ -136,23 +136,39 @@ function setup(){
  makeHand();scene.add(hand);prop=makeProp();const resize=()=>{const w=$("stage").clientWidth,h=$("stage").clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h)};new ResizeObserver(resize).observe($("stage"));resize();$("loading").remove();loop();
 }
 function loop(){raf=requestAnimationFrame(loop);controls.update();renderer.render(scene,camera)}
+// Una sola mano anatómica persistente; cada patrón define una postura articular propia.
+const handPoses=[
+ // MCF, IF proximal y distal por dedo: índice, medio, anular, meñique.
+ {f:[[.55,.82,.65],[.62,.9,.72],[.58,.88,.7],[.48,.78,.62]],spread:[-.04,-.02,.02,.06],thumb:[-.28,.72,.55]},
+ {f:[[.18,.24,.16],[.62,.78,.58],[.48,.68,.5],[.38,.58,.42]],spread:[-.02,0,.02,.04],thumb:[-.18,.42,.32]},
+ {f:[[.12,.28,.2],[.22,.35,.25],[.58,.8,.62],[.52,.75,.58]],spread:[-.03,-.01,.03,.06],thumb:[-.38,.58,.42]},
+ {f:[[.12,.2,.12],[.62,.78,.55],[.42,.62,.45],[.3,.48,.35]],spread:[-.03,0,.03,.05],thumb:[-.48,.32,.2]},
+ {f:[[.28,.42,.3],[.35,.5,.36],[.72,.92,.72],[.66,.86,.68]],spread:[-.02,0,.03,.06],thumb:[-.42,.7,.52]},
+ {f:[[.08,.16,.1],[.7,.88,.68],[.78,.92,.72],[.7,.86,.66]],spread:[-.03,0,.04,.07],thumb:[-.58,.84,.68]},
+ {f:[[.52,.76,.6],[.5,.74,.58],[.48,.72,.56],[.46,.7,.54]],spread:[-.12,-.04,.05,.13],thumb:[-.2,.5,.38]},
+ {f:[[.72,.95,.78],[.78,1.02,.84],[.74,.98,.8],[.65,.9,.75]],spread:[-.03,-.01,.02,.05],thumb:[-.28,.72,.58]},
+ {f:[[.78,1.02,.86],[.82,1.08,.9],[.8,1.04,.88],[.7,.96,.8]],spread:[-.02,0,.02,.04],thumb:[-.32,.78,.62]},
+ {f:[[.62,.85,.68],[.68,.9,.72],[.65,.88,.7],[.55,.8,.64]],spread:[-.05,-.02,.02,.05],thumb:[-.18,.55,.4]},
+ {f:[[.58,.82,.66],[.68,.92,.74],[.72,.96,.78],[.62,.86,.7]],spread:[-.18,-.06,.07,.18],thumb:[-.3,.72,.55]}
+];
 function setPose(index){
- const d=data[index];
+ const d=data[index],pose=handPoses[index];
  parts.forEach(p=>{
   if(p.type==="finger"){
-   const curl=d.curl[p.index];
-   const spread=index===10?(p.index-1.5)*.16:index===6?(p.index-1.5)*.035:0;
-   p.root.rotation.z=spread;
-   p.segs.forEach((s,j)=>{const base=j===0?.22:j===1?.52:.62;s.rotation.x=curl*base;});
+   const i=p.index,angles=pose.f[i];
+   p.root.rotation.z=pose.spread[i];
+   p.segs.forEach((s,j)=>{s.rotation.x=angles[j];});
   }else{
-   p.root.rotation.z=-.78-d.thumb*.12;
-   p.root.rotation.x=.05;
-   p.segs[0].rotation.x=.12*d.thumb;
-   p.segs[1].rotation.x=.28*d.thumb;
+   // La base del pulgar rota hacia la palma y sus dos falanges se flexionan
+   // de forma distinta según el tipo de oposición requerido.
+   p.root.rotation.z=-.78+pose.thumb[0];
+   p.root.rotation.x=.08;
+   p.segs[0].rotation.x=pose.thumb[1];
+   p.segs[1].rotation.x=pose.thumb[2];
   }
  });
  showProp(index);
- $("poseLabel").textContent="Demostración: "+d.name;
+ $("poseLabel").textContent="Postura de mano: "+d.name;
 }
 function renderTopic(){
  const d=data[current];$("heading").textContent=d.name;$("title").textContent=d.name;$("desc").textContent=d.desc;$("key").textContent=d.key;$("kicker").textContent="Patrón "+String(current+1).padStart(2,"0")+" · "+d.kind;
