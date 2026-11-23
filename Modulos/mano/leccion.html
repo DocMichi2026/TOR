@@ -55,7 +55,7 @@ h1{font-size:clamp(29px,4vw,46px);letter-spacing:-.035em;margin:18px 0 8px}.top 
 .topic b{font-size:12px;line-height:1.4}.topic small{font-size:10px;margin-top:4px}
 .viewer{overflow:hidden}.viewer-head{padding:17px 19px;background:#fff}.viewer-head b{font-size:14px}.viewer-head small{font-size:11px;line-height:1.5;margin-top:3px}
 .btn{border-radius:10px;padding:8px 11px;font-size:11px;transition:all .15s}.btn:hover{border-color:#9bbfc0;transform:translateY(-1px)}.btn.primary{box-shadow:0 3px 8px #087e8325}
-#stage{height:610px;background:radial-gradient(ellipse at 50% 42%,#fff 0%,#f0f5f6 58%,#e6eef1 100%)}
+#stage{height:610px;background:radial-gradient(ellipse at 50% 42%,#17232d 0%,#0c131a 62%,#070b10 100%);border-radius:0 0 12px 12px}#stage canvas{background:transparent}#stage .hint{background:#101a22e8;border:1px solid #52616d;color:#d4e0e7;box-shadow:0 3px 14px #0008}#stage .loading{background:#0b1219;color:#d6e2e8}
 .hint{font-size:10px;background:#ffffffed;box-shadow:0 2px 9px #18384b10;padding:8px 11px}
 .stage-tools{padding:13px 17px;background:#fbfcfc}.stage-tools label{font-size:11px}
 .topic-info{padding:19px 19px 17px;background:linear-gradient(180deg,#fff,#fbfdfd)}
@@ -142,7 +142,7 @@ const topics=[
 const movements=TOR.movimientos||[];
 const movementNames={"flexion_dedos":"Flexión de los dedos","extension_dedos":"Extensión de los dedos","abduccion_dedos":"Abducción de los dedos","aduccion_dedos":"Aducción de los dedos","flexion_pulgar":"Flexión del pulgar","extension_pulgar":"Extensión del pulgar","oposicion_pulgar":"Oposición del pulgar","reposicion_pulgar":"Reposición del pulgar","flexion_muneca":"Flexión de la muñeca","extension_muneca":"Extensión de la muñeca","desviacion_radial":"Desviación radial","desviacion_cubital":"Desviación cubital"};
 const stage=document.getElementById("stage"),loading=document.getElementById("loading");
-const scene=new THREE.Scene();scene.background=new THREE.Color(0xe8f0f3);
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x080d13);
 const camera=new THREE.PerspectiveCamera(34,stage.clientWidth/stage.clientHeight,.1,100);camera.position.set(4.7,2.5,6.7);
 const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(stage.clientWidth,stage.clientHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;stage.appendChild(renderer.domElement);
 const controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.dampingFactor=.07;controls.target.set(0,-.15,0);controls.minDistance=2.5;controls.maxDistance=12;
@@ -150,7 +150,7 @@ scene.add(new THREE.HemisphereLight(0xffffff,0x9aabb5,2.0));
 const key=new THREE.DirectionalLight(0xffffff,2.5);key.position.set(4,6,7);scene.add(key);
 const fill=new THREE.DirectionalLight(0xd8edff,1.2);fill.position.set(-5,1,-4);scene.add(fill);
 const rim=new THREE.DirectionalLight(0xffffff,.8);rim.position.set(0,-3,5);scene.add(rim);
-const grid=new THREE.GridHelper(8,24,0xc7d5dc,0xd7e1e6);grid.position.y=-2.15;grid.material.transparent=true;grid.material.opacity=.25;scene.add(grid);
+const grid=new THREE.GridHelper(8,24,0x263744,0x172630);grid.position.y=-2.15;grid.material.transparent=true;grid.material.opacity=.34;scene.add(grid);
 scene.add(TOR.root);
 TOR.root.rotation.y=.08;
 const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
@@ -232,7 +232,23 @@ function renderStudyGuide(){
   {idea:"¿Qué vas a aprender?",body:"Conectar una alteración funcional con la estructura anatómica que puede estar comprometida.",map:"Dedo en gatillo: polea A1 y tendón flexor; dedo en martillo: tendón extensor terminal; boutonnière: banda central; De Quervain: APL y EPB.",check:"La anatomía ayuda a comprender los mecanismos, pero el diagnóstico requiere evaluación clínica.",task:"Elige una estructura relacionada con una lesión y explica qué función podría alterarse."}
  ];
  const l=lessons[active];
+ const studyExtras=[
+ "El esqueleto de la mano se organiza en carpo, metacarpo y falanges. El carpo tiene ocho huesos en dos filas; cada metacarpiano forma el armazón de un radio digital. Las cabezas metacarpianas forman los nudillos. El pulgar tiene falange proximal y distal; los dedos II–V tienen falanges proximal, media y distal. La base del primer metacarpiano permite una gran movilidad para la oposición.",
+ "Los músculos extrínsecos tienen su vientre en el antebrazo y sus tendones llegan a la mano; permiten generar fuerza. Los intrínsecos se encuentran en la propia mano y ajustan movimientos finos. En conjunto controlan prensión de fuerza, pinza, separación y aproximación de los dedos. La función depende de la coordinación entre músculo, tendón y articulación.",
+ "Grupo tenar: abductor corto, flexor corto, oponente y aductor del pulgar. Grupo hipotenar: abductor, flexor corto y oponente del quinto dedo. Los lumbricales nacen de los tendones del flexor profundo; los interóseos se ubican entre los metacarpianos. Regla funcional: lumbricales e interóseos flexionan las metacarpofalángicas y ayudan a extender las interfalángicas.",
+ "El flexor superficial de los dedos se divide antes de insertarse en los lados de la falange media; por ese espacio pasa el flexor profundo, que llega a la falange distal. El flexor largo del pulgar llega a la falange distal del pulgar. El nervio mediano inerva la mayor parte de los flexores largos; el flexor profundo de los dedos tiene inervación compartida entre mediano (porción lateral) y ulnar (porción medial).",
+ "En el dorso, el extensor de los dedos envía expansiones a los dedos II–V; el extensor del índice y el extensor del meñique aportan control independiente. En el pulgar actúan, entre otros, el extensor largo y corto. La expansión extensora distribuye la tensión entre banda central y bandas laterales, permitiendo coordinar extensión de las articulaciones metacarpofalángicas e interfalángicas.",
+ "Las vainas fibrosas forman túneles osteofibrosos que mantienen los tendones flexores próximos a las falanges. Las poleas anulares y cruciformes son engrosamientos de esa vaina. Las vainas sinoviales son envolturas lubricadas que reducen la fricción; en la muñeca existen bolsas sinoviales para los tendones flexores. La inflamación puede dificultar el deslizamiento y causar dolor o bloqueo.",
+ "Las poleas anulares se nombran A1–A5 y las cruciformes C1–C3. A1 está cerca de la articulación metacarpofalángica; A2 y A4 se sitúan sobre las falanges proximal y media, respectivamente. A2 y A4 son especialmente importantes para impedir el bowstringing. La polea A1 es la región habitualmente implicada en el dedo en gatillo.",
+ "La expansión extensora recibe aportes del extensor de los dedos y de los músculos intrínsecos. La banda central se inserta en la base de la falange media; las bandas laterales pasan a ambos lados y se unen en el tendón terminal, que se inserta en la falange distal. Una lesión de la banda central puede alterar la extensión de la interfalángica proximal; una lesión del tendón terminal puede causar dedo en martillo.",
+ "El nervio mediano atraviesa el túnel carpiano y aporta sensibilidad a la palma lateral y a los tres dedos y medio laterales en su cara palmar; también inerva músculos tenares seleccionados y lumbricales laterales. El nervio ulnar pasa por el canal de Guyon y aporta la mayoría de los músculos intrínsecos y sensibilidad al dedo y medio cubitales. El ramo superficial radial es principalmente sensitivo en el dorso radial de la mano.",
+ "La arteria ulnar suele contribuir principalmente al arco palmar superficial y la radial al arco palmar profundo. De los arcos nacen arterias metacarpianas y digitales que llevan sangre a los dedos. Las conexiones entre ambos arcos ofrecen circulación colateral. En clínica, la perfusión digital se valora por color, temperatura y relleno capilar, junto con exploración vascular apropiada.",
+ "La flexión y extensión ocurren en planos diferentes según la articulación. Las metacarpofalángicas permiten flexión-extensión y abducción-aducción; las interfalángicas son principalmente bisagra. La oposición del pulgar combina abducción, flexión y rotación medial en la carpometacarpiana. La prensión de potencia estabiliza objetos grandes; la pinza de precisión coordina pulgar e índice con control sensitivo y motor.",
+ "La radiocarpiana conecta el radio con la fila proximal del carpo; las articulaciones intercarpianas permiten deslizamientos coordinados. Las carpometacarpianas II–V son relativamente estables, mientras que la del pulgar es muy móvil. Las metacarpofalángicas permiten movimientos biaxiales y las interfalángicas flexión-extensión. Ligamentos colaterales, placas palmares y ligamentos carpianos estabilizan sin eliminar la movilidad.",
+ "Dedo en gatillo: engrosamiento o conflicto en la polea A1 con el tendón flexor, que produce resalte o bloqueo. Dedo en martillo: lesión del tendón extensor terminal en la articulación interfalángica distal. Boutonnière: lesión de la banda central con desequilibrio de las bandas laterales. De Quervain: tenosinovitis del primer compartimento dorsal, que contiene APL y EPB. Son mecanismos para estudiar, no diagnósticos."
+ ];
  const cards=[[l.idea,l.body],[ "Cómo orientarte en el modelo",l.map ],["Clave para recordar",l.check],["Tu misión práctica",l.task],["Estructuras disponibles",visibleStructures.slice(0,7).map(s=>s.nombre).join(" · ")||"Este concepto se estudia con la explicación y las estructuras relacionadas."]];
+ cards.push(["Información clave para profundizar",studyExtras[active]]);
  cards.forEach(([label,value],i)=>{const d=document.createElement("div");d.className="study-card";const b=document.createElement("b");b.textContent=label;const span=document.createElement("span");span.textContent=value;d.append(b,span);guide.appendChild(d);});
 }
 function renderStructures(){
