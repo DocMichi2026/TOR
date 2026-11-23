@@ -33,6 +33,8 @@ h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{marg
 .foot{max-width:1600px;margin:14px auto 28px;padding:0 28px;color:#82939b;font-size:10px}
 @media(max-width:1150px){.layout{grid-template-columns:230px minmax(320px,1fr)}.right{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.right-section{border-right:1px solid var(--line)}#stage{height:520px}}
 @media(max-width:720px){.layout{grid-template-columns:1fr}.nav{position:static;max-height:none}.topic-grid{display:grid;grid-template-columns:1fr 1fr}.right{grid-column:auto;display:block}.right-section{border-right:0}#stage{height:440px;min-height:360px}.viewer-head{align-items:flex-start;flex-direction:column}.intro{align-items:flex-start;flex-direction:column}.foot{padding:0 16px}}
+
+.study-game{padding:13px 15px;border-bottom:1px solid var(--line)}.study-game h3{font-size:12px;margin:0 0 8px}.study-game p{font-size:11px;color:#526d7a;margin:6px 0}.study-actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.study-card{background:#f4f8f9;border-radius:9px;padding:9px;margin:7px 0}.study-card b{display:block;font-size:10px;color:#718692;text-transform:uppercase;letter-spacing:.06em}.study-card span{font-size:11px;color:#29495b}.game-prompt{font-size:13px;font-weight:800;color:#075e67;background:#e8f3f3;padding:10px;border-radius:9px;margin:8px 0}.game-status{font-size:11px;min-height:32px;color:#617784}.game-status.good{color:#087e53;font-weight:800}.game-status.bad{color:#a64c35;font-weight:800}
 </style>
 </head>
 <body>
@@ -55,7 +57,7 @@ h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{marg
   </section>
   <aside class="panel right">
    <div class="topic-info"><div class="eyebrow" id="topicKicker">Tema 01</div><h2 id="topicTitle">Anatomía ósea de la mano</h2><p id="topicDescription"></p><div class="callout" id="topicNote"></div></div>
-   <div class="right-section"><h3>Estructuras del tema <span id="count" style="color:#82949d;font-weight:500"></span></h3><div class="structure-list" id="structureList"></div></div>
+   <div class="study-game"><h3>Guía de estudio</h3><div id="studyGuide"></div><div class="study-actions"><button class="btn primary" id="startGame">Jugar: localiza la estructura</button><button class="btn" id="nextGame" disabled>Siguiente reto</button></div><div id="gamePrompt" class="game-prompt">Pulsa “Jugar” para comenzar.</div><div id="gameStatus" class="game-status">Elige la estructura correcta haciendo clic directamente sobre ella en el modelo 3D.</div><div style="font-size:10px;color:#84959d">Aciertos: <b id="gameScore">0</b> · Intentos: <b id="gameTries">0</b></div></div><div class="right-section"><h3>Estructuras del tema <span id="count" style="color:#82949d;font-weight:500"></span></h3><div class="structure-list" id="structureList"></div></div>
    <div class="right-section"><h3>Estructura seleccionada</h3><div id="detail"><span style="font-size:11px;color:#84959d">Selecciona una estructura en el modelo o en la lista.</span></div></div>
   </aside>
  </div>
@@ -64,6 +66,8 @@ h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{marg
 <script type="module">
 import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
+await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,35)));
+document.getElementById("loading").textContent="Preparando geometría anatómica optimizada…";
 await import("./modelo-mano.js");
 const TOR=window.TOR;
 const topics=[
@@ -97,6 +101,7 @@ scene.add(TOR.root);
 TOR.root.rotation.y=.08;
 const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
 let active=0,visibleStructures=[];
+let gameTarget=null,gameScore=0,gameTries=0,gameSolved=false;
 function showTopic(index){
  active=index;const t=topics[index];
  document.querySelectorAll(".topic").forEach((b,i)=>b.classList.toggle("active",i===index));
@@ -104,11 +109,16 @@ function showTopic(index){
  document.getElementById("topicTitle").textContent=t.title;document.getElementById("topicDescription").textContent=t.desc;document.getElementById("topicNote").textContent=t.note;
  document.getElementById("viewerTitle").textContent=t.title;
  document.getElementById("movementBox").classList.toggle("show",!!t.movement);
- TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion.clear();TOR._capa=1;TOR._aplicar();
+ TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion=null;TOR._capa=1;TOR._aplicar();
  visibleStructures=TOR.estructuras.filter(s=>t.filter(s));
- renderStructures();renderDetail(null);
+ renderStructures();renderDetail(null);renderStudyGuide();
  document.getElementById("depth").value="1";document.getElementById("depthLabel").textContent="Todas las capas";
  if(t.movement){const first=movements[0];if(first){document.getElementById("movementSelect").value=first.id;setMovement(first.id,0);}}else{TOR.resetPose();}
+}
+function renderStudyGuide(){
+ const guide=document.getElementById("studyGuide"),t=topics[active];guide.innerHTML="";
+ const cards=[["Objetivo",t.desc],["Clave anatómica",t.note],["Estructuras para reconocer",visibleStructures.slice(0,8).map(s=>s.nombre).join(" · ")||"No hay estructuras modeladas en este tema."]];
+ cards.forEach(([label,value])=>{const d=document.createElement("div");d.className="study-card";const b=document.createElement("b");b.textContent=label;const span=document.createElement("span");span.textContent=value;d.append(b,span);guide.appendChild(d);});
 }
 function renderStructures(){
  const box=document.getElementById("structureList");box.innerHTML="";
@@ -140,7 +150,11 @@ document.getElementById("reset").addEventListener("click",()=>{TOR.mostrarTodo()
 document.getElementById("palmar").addEventListener("click",()=>{camera.position.set(0,1.1,8);controls.target.set(0,-.1,0);controls.update();});
 document.getElementById("dorsal").addEventListener("click",()=>{camera.position.set(0,1.1,-8);controls.target.set(0,-.1,0);controls.update();});
 document.getElementById("export").addEventListener("click",()=>TOR.exportarGLB(result=>{if(result?.error)alert("No se pudo exportar: "+result.error);else alert("Modelo exportado: "+result.nombre);}));
-renderer.domElement.addEventListener("pointerup",e=>{if(e.button!==0)return;const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(pointer,camera);const hits=ray.intersectObject(TOR.root,true);if(!hits.length)return;let obj=hits[0].object;while(obj&&!obj.userData?.id)obj=obj.parent;if(obj?.userData?.id){const id=obj.userData.id;if(visibleStructures.some(s=>s.id===id))selectStructure(id);}});
+function pickedStructure(e){const rect=renderer.domElement.getBoundingClientRect();pointer.x=((e.clientX-rect.left)/rect.width)*2-1;pointer.y=-((e.clientY-rect.top)/rect.height)*2+1;ray.setFromCamera(pointer,camera);const hits=ray.intersectObject(TOR.root,true);if(!hits.length)return null;let obj=hits[0].object;while(obj&&!obj.userData?.id)obj=obj.parent;return obj?.userData?.id||null;}
+renderer.domElement.addEventListener("pointerup",e=>{if(e.button!==0)return;const id=pickedStructure(e);if(!id||!visibleStructures.some(s=>s.id===id))return;selectStructure(id);if(gameTarget&&!gameSolved){gameTries++;document.getElementById("gameTries").textContent=gameTries;if(id===gameTarget.id){gameSolved=true;gameScore++;document.getElementById("gameScore").textContent=gameScore;const status=document.getElementById("gameStatus");status.className="game-status good";status.textContent="¡Correcto! Has localizado "+gameTarget.nombre+" en el modelo.";document.getElementById("nextGame").disabled=false;}else{const status=document.getElementById("gameStatus");status.className="game-status bad";status.textContent="Todavía no. Has seleccionado otra estructura; vuelve a intentarlo.";}}});
+function newGameQuestion(){if(!visibleStructures.length)return;gameTarget=visibleStructures[Math.floor(Math.random()*visibleStructures.length)];gameSolved=false;document.getElementById("gamePrompt").textContent="Localiza en el modelo 3D: "+gameTarget.nombre;const status=document.getElementById("gameStatus");status.className="game-status";status.textContent="Rota o acerca la mano y haz clic sobre la estructura que se te pide.";document.getElementById("nextGame").disabled=true;}
+document.getElementById("startGame").addEventListener("click",()=>{gameScore=0;gameTries=0;document.getElementById("gameScore").textContent="0";document.getElementById("gameTries").textContent="0";newGameQuestion();});
+document.getElementById("nextGame").addEventListener("click",newGameQuestion);
 if(topics[12].clinical){
  const t=topics[12];t.note+=" Ejemplos: dedo en gatillo (polea A1 y deslizamiento flexor), dedo en martillo (tendón extensor terminal), lesión tipo boutonnière (banda central), lesión del FDP tipo jersey finger y tenosinovitis de De Quervain (APL/EPB).";
 }
