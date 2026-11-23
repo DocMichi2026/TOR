@@ -272,7 +272,7 @@ document.getElementById("nextGame").addEventListener("click",newGameQuestion);
 if(topics[12].clinical){
  const t=topics[12];t.note+=" Ejemplos: dedo en gatillo (polea A1 y deslizamiento flexor), dedo en martillo (tendón extensor terminal), lesión tipo boutonnière (banda central), lesión del FDP tipo jersey finger y tenosinovitis de De Quervain (APL/EPB).";
 }
-const requestedTopic=Math.max(0,Math.min(12,Number(new URLSearchParams(location.search).get("tema")||0)));showTopic(Number.isFinite(requestedTopic)?requestedTopic:0);document.getElementById("pageHeading").textContent=topics[requestedTopic].title;loading.remove();
+const rawTopic=Number.parseInt(new URLSearchParams(location.search).get("tema")||"0",10);const requestedTopic=Number.isInteger(rawTopic)?Math.max(0,Math.min(12,rawTopic)):0;showTopic(requestedTopic);document.getElementById("pageHeading").textContent=topics[requestedTopic].title;loading.remove();
 function resize(){const w=stage.clientWidth,h=stage.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h);}
 new ResizeObserver(resize).observe(stage);
 function animate(){requestAnimationFrame(animate);controls.update();renderer.render(scene,camera);}animate();
