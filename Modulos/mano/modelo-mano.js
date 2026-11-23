@@ -1001,6 +1001,491 @@ function construir(){
         inervacion:'—',relaciones:'El colateral ulnar de la MCF es el más solicitado en la prensión.'}});
     [0,1].forEach(gi=>{
       const sg=DIG.pulgar.fr[gi];
+      [1,-1].forEach(sgn=>{
+        const p0=sg.a.clone().addScaledVector(sg.sd,sgn*(sg.r+0.006)).addScaledVector(sg.ax,-0.02);
+        const p1=sg.b.clone().addScaledVector(sg.sd,sgn*(sg.r+0.004));
+        colt.geo.push(tubeGeo([p0,p0.clone().lerp(p1,0.55).addScaledVector(sg.vl,0.016),p1],t=>0.009,{tub:14,rad:6}));
+      });
+    });
+  })();
+
+  /* ---------- consolidar mallas ---------- */
+  const out=[];
+  STR.forEach(s=>{
+    if(!s.geo.length)return;
+    const g=partes(s.geo);
+    s.geo.length=0;
+    const mesh=new THREE.Mesh(g,s.mat);
+    mesh.name=s.id;
+    mesh.userData={id:s.id,nombre:s.nombre,latin:s.latin,sistema:s.sis,coleccion:s.col};
+    s.mesh=mesh;
+    CG[s.col].add(mesh);
+    out.push(s);
+  });
+  return {root:root,CG:CG,estructuras:out,DIG:DIG};
+}
+
+/* ============================================================================
+   API
+   ========================================================================== */
+const BUILT=construir();
+const TOR={
+  root:BUILT.root, colecciones:BUILT.CG, sistemas:SISTEMAS,
+  estructuras:BUILT.estructuras, colorContorno:0x1B1B1B,
+  seleccion:null, fondoOpacidad:0.40, _ocultos:new Set(),
+  porId:function(id){return this.estructuras.find(e=>e.id===id);},
+  _base:function(){this.estructuras.forEach(e=>{
+    const m=e.mesh;
+    m.visible=!this._ocultos.has(e.id);
+    if(m.material.emissive)m.material.emissive.setHex(0x000000);
+    m.material.opacity=e.baseO;m.material.transparent=e.baseT;m.material.depthWrite=e.baseDW;
+    if(e.contorno)e.contorno.visible=false;
+  });},
+  _aplicar:function(){
+    this._base();
+    const sel=this.seleccion?this.porId(this.seleccion):null;
+    this.estructuras.forEach(e=>{
+      if(this._ocultos.has(e.id))return;
+      if(sel&&e.id!==sel.id){
+        e.mesh.material.transparent=true;
+        e.mesh.material.opacity=this.fondoOpacidad*e.baseO;
+        e.mesh.material.depthWrite=false;
+        if(e.contorno)e.contorno.visible=false;
+      }
+    });
+    if(sel){
+      if(!sel.contorno)sel.contorno=this._contorno(sel);
+      sel.contorno.visible=true;
+      sel.mesh.material.opacity=sel.baseO;sel.mesh.material.transparent=sel.baseT;
+      sel.mesh.material.depthWrite=sel.baseDW;
+    }
+  },
+  _contorno:function(e){
+    const g=e.mesh.geometry.clone();
+    g.computeBoundingBox();
+    const c=new THREE.Vector3();g.boundingBox.getCenter(c);
+    g.applyMatrix4(new THREE.Matrix4().makeTranslation(-c.x,-c.y,-c.z));
+    g.applyMatrix4(new THREE.Matrix4().makeScale(1.028,1.028,1.028));
+    g.applyMatrix4(new THREE.Matrix4().makeTranslation(c.x,c.y,c.z));
+    const mesh=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:this.colorContorno||0x1B1B1B,side:THREE.BackSide}));
+    mesh.name=e.id+'_contorno';
+    e.mesh.add(mesh);
+    return mesh;
+  },
+  seleccionar:function(id){this.seleccion=(this.seleccion===id)?null:id;this._aplicar();return this.seleccion;},
+  ocultar:function(id,b){
+    if(b)this._ocultos.add(id);else this._ocultos.delete(id);
+    if(this.seleccion===id&&b)this.seleccion=null;
+    this._aplicar();
+  },
+  alternar:function(id){this.ocultar(id,this._ocultos.has(id)?false:true);},
+  aislarSistema:function(sis){
+    this._ocultos=new Set();
+    this.estructuras.forEach(e=>{if(e.sis!==sis)this._ocultos.add(e.id);});
+    this.seleccion=null;this._aplicar();
+  },
+  aislarColeccion:function(col){
+    this._ocultos=new Set();
+    this.estructuras.forEach(e=>{if(e.col!==col)this._ocultos.add(e.id);});
+    this.seleccion=null;this._aplicar();
+  },
+  mostrarTodo:function(){this._ocultos=new Set();this.seleccion=null;this._aplicar();},
+  opacidadFondo:function(v){this.fondoOpacidad=v;this._aplicar();},
+  grupos:function(){
+    const out={};
+    this.estructuras.forEach(e=>{(out[e.col]=out[e.col]||[]).push(e);});
+    return out;
+  },
+  conteo:function(){
+    const vis=this.estructuras.filter(e=>!this._ocultos.has(e.id)).length;
+    return {total:this.estructuras.length,visibles:vis,ocultos:this._ocultos.size};
+  },
+  exportarGLB:function(cb){
+    const st=this.estructuras.map(e=>[e.mesh.material.opacity,e.mesh.material.transparent,e.mesh.visible]);
+    this.estructuras.forEach(e=>{
+      if(e.contorno)e.contorno.visible=false;
+      e.mesh.material.opacity=1;e.mesh.material.transparent=false;
+    });
+    const n=this.estructuras.filter(e=>!this._ocultos.has(e.id)).length;
+    const exp=new GLTFExporter();
+    exp.parse(this.root,function(buf){
+      TOR.estructuras.forEach((e,i)=>{
+        e.mesh.material.opacity=st[i][0];e.mesh.material.transparent=st[i][1];e.mesh.visible=st[i][2];
+      });
+      const blob=new Blob([buf],{type:'model/gltf-binary'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;a.download='mano_derecha_TOR.glb';
+      document.body.appendChild(a);a.click();document.body.removeChild(a);
+      setTimeout(()=>URL.revokeObjectURL(url),4000);
+      if(cb)cb({nombre:'mano_derecha_TOR.glb',objetos:n,tamano:(buf.byteLength/1048576).toFixed(2)});
+    },function(err){if(cb)cb({error:String((err&&err.message)||err)});},{binary:true,onlyVisible:true});
+  }
+};
+
+/* ============================================================================
+   V2 · ESQUELETO ARTICULAR, CAPAS Y MOVIMIENTOS BIOMECÁNICOS
+   ========================================================================== */
+const EST=BUILT.estructuras;
+const SIS_DE_COL={};COLECCIONES.forEach(c=>{SIS_DE_COL[c.id]=c.sis;});
+const CLAVE_DIG={'índice':'indice','medio':'medio','anular':'anular','meñique':'menique','pulgar':'pulgar'};
+
+/* profundidad anatómica: 1 superficial · 2 media · 3 profunda */
+function profDe(s){
+  const id=s.id;
+  if(/^(aponeurosis|retinaculo|vaina_fibrosa|red_venosa|musculo_palmar_corto|ligamento_sagital)/.test(id))return 1;
+  if(/^(tendon_flexor_profundo|tendon_flexor_largo|musculo_fdp|musculo_interoseo|musculo_lumbrical|rama_profunda_nervio_ulnar|arco_palmar_profundo|musculo_aductor_pulgar_transverso)/.test(id))return 3;
+  return 2;
+}
+EST.forEach(s=>{s.sis=SIS_DE_COL[s.col]||s.sis;s.prof=profDe(s);s.meshes=[];});
+
+/* ---------------- portadores (pivotes articulares) ---------------- */
+const CAR=[],CARMAP={};
+function nuevoCarrier(id,piv,padre,ejes,segs){
+  const c={id:id,piv:piv,padre:padre,ax:ejes[0],vl:ejes[1],sd:ejes[2],segs:segs,
+           grupo:new THREE.Group()};
+  c.grupo.name='rig_'+id;
+  CAR.push(c);CARMAP[id]=c;return c;
+}
+(function montarRig(){
+  const Y=V3(0,1,0),Z=V3(0,0,1),NX=V3(-1,0,0);
+  nuevoCarrier('antebrazo',V3(0,0,0),null,[Y,Z,NX],[{a:V3(0,3.3,0),b:V3(0.04,1.04,0.02)}]);
+  nuevoCarrier('muneca',V3(0.05,0.88,0.02),'antebrazo',[Y,Z,NX],[{a:V3(0.05,1.04,0.02),b:V3(0.03,0.66,0.02)}]);
+  nuevoCarrier('mano',V3(0.02,0.30,0.02),'muneca',[Y,Z,NX],[{a:V3(0.03,0.66,0.02),b:V3(0.02,-1.45,0.02)}]);
+  FING.forEach(f=>{
+    const D=BUILT.DIG[f.k],fr=D.fr;
+    nuevoCarrier('mcp_'+f.k,f.mcp,'mano',[fr[0].ax,fr[0].vl,fr[0].sd],[{a:fr[0].a,b:fr[0].b}]);
+    nuevoCarrier('pip_'+f.k,D.j[1],'mcp_'+f.k,[fr[1].ax,fr[1].vl,fr[1].sd],[{a:fr[1].a,b:fr[1].b}]);
+    nuevoCarrier('dip_'+f.k,D.j[2],'pip_'+f.k,[fr[2].ax,fr[2].vl,fr[2].sd],[{a:fr[2].a,b:fr[2].b}]);
+  });
+  const T=BUILT.DIG.pulgar;
+  nuevoCarrier('cmc_pulgar',THUMB.cmc,'mano',[T.fr[0].ax,T.fr[0].vl,T.fr[0].sd],[{a:THUMB.cmc,b:THUMB.mcp}]);
+  nuevoCarrier('mcp_pulgar',THUMB.mcp,'cmc_pulgar',[T.fr[0].ax,T.fr[0].vl,T.fr[0].sd],[{a:T.fr[0].a,b:T.fr[0].b}]);
+  nuevoCarrier('ip_pulgar',THUMB.ip,'mcp_pulgar',[T.fr[1].ax,T.fr[1].vl,T.fr[1].sd],[{a:T.fr[1].a,b:T.fr[1].b}]);
+  CAR.forEach(c=>{
+    if(c.padre){const p=CARMAP[c.padre];c.grupo.position.copy(c.piv).sub(p.piv);p.grupo.add(c.grupo);}
+    else{ c.grupo.position.copy(c.piv); BUILT.root.add(c.grupo); }
+  });
+})();
+
+/* ---------------- reparto de cada estructura entre portadores ---------------- */
+function distSeg(p,a,b){
+  const ab=b?b.clone().sub(a):null;
+  if(!ab||ab.lengthSq()<1e-9)return p.distanceTo(a);
+  let t=p.clone().sub(a).dot(ab)/ab.lengthSq();
+  t=Math.max(0,Math.min(1,t));
+  return p.distanceTo(a.clone().addScaledVector(ab,t));
+}
+function candidatosDe(s){
+  const id=s.id,k=CLAVE_DIG[s.dig]||'';
+  if(/^hueso_radio|^hueso_ulna/.test(id))return ['antebrazo'];
+  if(/^hueso_(escafoides|semilunar|piramidal|pisiforme|trapecio|trapezoide|grande|ganchoso)/.test(id))return ['muneca'];
+  if(id==='hueso_metacarpiano_1')return ['cmc_pulgar'];
+  if(/^hueso_metacarpiano/.test(id))return ['mano'];
+  if(k==='pulgar'){
+    if(/^hueso_falange_proximal/.test(id)||/^articulacion_metacarpofalangica_pulgar/.test(id))return ['mcp_pulgar'];
+    if(/^hueso_falange_distal/.test(id)||/^articulacion_interfalangica_pulgar/.test(id))return ['ip_pulgar'];
+  }
+  if(/^hueso_falange_proximal/.test(id))return ['mcp_'+k];
+  if(/^hueso_falange_media/.test(id))return ['pip_'+k];
+  if(/^hueso_falange_distal/.test(id))return ['dip_'+k];
+  if(/^articulacion_(radiocarpiana|mediocarpiana|intercarpiana)/.test(id))return ['muneca'];
+  if(/^articulacion_carpometacarpiana/.test(id))return ['mano'];
+  if(/^articulacion_metacarpofalangica/.test(id))return ['mcp_'+k];
+  if(/^articulacion_interfalangica_proximal/.test(id))return ['pip_'+k];
+  if(/^articulacion_interfalangica_distal/.test(id))return ['dip_'+k];
+  if(/^retinaculo/.test(id))return ['muneca'];
+  if(s.col==='MUSCULOS_EXTRINSECOS')return ['antebrazo'];
+  if(k==='pulgar')return ['muneca','mano','cmc_pulgar','mcp_pulgar','ip_pulgar'];
+  if(k)return ['muneca','mano','mcp_'+k,'pip_'+k,'dip_'+k];
+  return ['antebrazo','muneca','mano'];
+}
+(function repartir(){
+  COLECCIONES.forEach(c=>{if(BUILT.CG[c.id])BUILT.root.remove(BUILT.CG[c.id]);});
+  EST.forEach(s=>{
+    const g=s.mesh?s.mesh.geometry:null;
+    if(!g)return;
+    const pos=g.attributes.position,nor=g.attributes.normal,uv=g.attributes.uv;
+    const cubos={};
+    for(let i=0;i<pos.count;i+=3){
+      const cx=(pos.getX(i)+pos.getX(i+1)+pos.getX(i+2))/3;
+      const cy=(pos.getY(i)+pos.getY(i+1)+pos.getY(i+2))/3;
+      const cz=(pos.getZ(i)+pos.getZ(i+1)+pos.getZ(i+2))/3;
+      const p=V3(cx,cy,cz);
+      let best=CAR[0],bd=1e9;
+      for(let ci=0;ci<CAR.length;ci++){
+        const c=CAR[ci];
+        for(let si=0;si<c.segs.length;si++){
+          const d=distSeg(p,c.segs[si].a,c.segs[si].b);
+          if(d<bd){bd=d;best=c;}
+        }
+      }
+      if(!cubos[best.id])cubos[best.id]=[];
+      cubos[best.id].push(i);
+    }
+    EST; // no-op
+    Object.keys(cubos).forEach(cid=>{
+      const idx=cubos[cid],n=idx.length*9;
+      const P=new Float32Array(n),N=new Float32Array(n),U=new Float32Array(idx.length*6);
+      const c=CARMAP[cid];
+      let k=0,u=0;
+      for(let ti=0;ti<idx.length;ti++){
+        const t=idx[ti];
+        for(let q=0;q<3;q++){
+          const v=t+q;
+          P[k]=pos.getX(v)-c.piv.x;N[k]=nor.getX(v);k++;
+          P[k]=pos.getY(v)-c.piv.y;N[k]=nor.getY(v);k++;
+          P[k]=pos.getZ(v)-c.piv.z;N[k]=nor.getZ(v);k++;
+          U[u++]=uv?uv.getX(v):0.5;U[u++]=uv?uv.getY(v):0.5;
+        }
+      }
+      const ng=new THREE.BufferGeometry();
+      ng.setAttribute('position',new THREE.BufferAttribute(P,3));
+      ng.setAttribute('normal',new THREE.BufferAttribute(N,3));
+      ng.setAttribute('uv',new THREE.BufferAttribute(U,2));
+      ng.computeBoundingSphere();
+      const m=new THREE.Mesh(ng,s.mat);
+      m.name=Object.keys(cubos).length>1?s.id+'__'+cid:s.id;
+      m.userData={id:s.id,nombre:s.nombre,latin:s.latin,sistema:s.sis,coleccion:s.col,portador:cid};
+      c.grupo.add(m);
+      s.meshes.push(m);
+    });
+    if(s.mesh){s.mesh.geometry.dispose();s.mesh=null;}
+    s.mesh=s.meshes[0]||null;
+  });
+})();
+
+/* ---------------- movimientos biomecánicos ---------------- */
+const idsDe=function(pref){return EST.filter(s=>pref.some(p=>s.id.indexOf(p)===0)).map(s=>s.id);};
+const movDedos=function(eje,g1,g2,g3){const o=[];FING.forEach(f=>{if(g1)o.push({c:'mcp_'+f.k,eje:eje,g:g1});if(g2)o.push({c:'pip_'+f.k,eje:eje,g:g2});if(g3)o.push({c:'dip_'+f.k,eje:eje,g:g3});});return o;};
+const H_DEDOS=idsDe(['hueso_falange_']);
+const H_CARPO=idsDe(['hueso_escafoides','hueso_semilunar','hueso_piramidal','hueso_pisiforme','hueso_trapecio','hueso_trapezoide','hueso_grande','hueso_ganchoso']);
+const MOV=[
+  {id:'flexion_dedos',nombre:'Flexión de los dedos',familia:'Dedos',
+   detalle:'MCF, IFP e IFD de los dedos II–V.',
+   joints:movDedos('flex',72,86,52),
+   huesos:H_DEDOS,
+   articulaciones:idsDe(['articulacion_metacarpofalangica_i','articulacion_metacarpofalangica_m','articulacion_metacarpofalangica_a','articulacion_metacarpofalangica_me','articulacion_interfalangica_']),
+   musculos:['musculo_fds','musculo_fdp'].concat(idsDe(['musculo_lumbrical_','musculo_interoseo_'])),
+   tendones:idsDe(['tendon_flexor_superficial_','tendon_flexor_profundo_']),
+   estables:'Radio, ulna y carpo permanecen fijos; las poleas A2 y A4 mantienen los tendones contra la falange.'},
+  {id:'extension_dedos',nombre:'Extensión de los dedos',familia:'Dedos',
+   detalle:'MCF, IFP e IFD de los dedos II–V.',
+   joints:movDedos('flex',-18,-12,-10),
+   huesos:H_DEDOS,
+   articulaciones:idsDe(['articulacion_metacarpofalangica_i','articulacion_metacarpofalangica_m','articulacion_metacarpofalangica_a','articulacion_metacarpofalangica_me','articulacion_interfalangica_']),
+   musculos:['musculo_ed','musculo_ei','musculo_edm'].concat(idsDe(['musculo_lumbrical_'])),
+   tendones:idsDe(['tendon_extensor_dedos_','expansion_extensora_','banda_central_','bandas_laterales_','tendon_terminal_extensor_']),
+   estables:'El carpo no se desplaza; las expansiones extensoras transmiten la fuerza a las IFP e IFD.'},
+  {id:'abduccion_dedos',nombre:'Abducción de los dedos',familia:'Dedos',
+   detalle:'MCF de los dedos II, IV y V.',
+   joints:[{c:'mcp_indice',eje:'abd',g:14},{c:'mcp_anular',eje:'abd',g:-11},{c:'mcp_menique',eje:'abd',g:-16}],
+   huesos:H_DEDOS,
+   articulaciones:['articulacion_metacarpofalangica_indice','articulacion_metacarpofalangica_anular','articulacion_metacarpofalangica_menique'],
+   musculos:idsDe(['musculo_interoseo_dorsal_']),
+   tendones:idsDe(['expansion_extensora_']),
+   estables:'El dedo medio sirve de referencia; los interóseos palmares quedan en reposo.'},
+  {id:'aduccion_dedos',nombre:'Aducción de los dedos',familia:'Dedos',
+   detalle:'MCF de los dedos II, IV y V.',
+   joints:[{c:'mcp_indice',eje:'abd',g:-13},{c:'mcp_anular',eje:'abd',g:10},{c:'mcp_menique',eje:'abd',g:15}],
+   huesos:H_DEDOS,
+   articulaciones:['articulacion_metacarpofalangica_indice','articulacion_metacarpofalangica_anular','articulacion_metacarpofalangica_menique'],
+   musculos:idsDe(['musculo_interoseo_palmar_']),
+   tendones:idsDe(['expansion_extensora_']),
+   estables:'El dedo medio permanece centrado; los interóseos dorsales se relajan.'},
+  {id:'flexion_pulgar',nombre:'Flexión del pulgar',familia:'Pulgar',
+   detalle:'MCF e IF del pulgar.',
+   joints:[{c:'mcp_pulgar',eje:'flex',g:42},{c:'ip_pulgar',eje:'flex',g:52}],
+   huesos:['hueso_metacarpiano_1','hueso_falange_proximal_pulgar','hueso_falange_distal_pulgar'],
+   articulaciones:['articulacion_metacarpofalangica_pulgar','articulacion_interfalangica_pulgar'],
+   musculos:['musculo_fpl','musculo_fpb','musculo_adductor_pulgar_transverso'],
+   tendones:['tendon_flexor_largo_pulgar'],
+   estables:'El primer metacarpiano conserva su posición; la polea oblicua retiene el FPL.'},
+  {id:'extension_pulgar',nombre:'Extensión del pulgar',familia:'Pulgar',
+   detalle:'MCF e IF del pulgar.',
+   joints:[{c:'mcp_pulgar',eje:'flex',g:-26},{c:'ip_pulgar',eje:'flex',g:-30}],
+   huesos:['hueso_metacarpiano_1','hueso_falange_proximal_pulgar','hueso_falange_distal_pulgar'],
+   articulaciones:['articulacion_metacarpofalangica_pulgar','articulacion_interfalangica_pulgar'],
+   musculos:['musculo_epl','musculo_epb','musculo_apl'],
+   tendones:['tendon_extensor_largo_pulgar','tendon_extensor_corto_pulgar'],
+   estables:'El carpo no se mueve; los extensores pasan por el tercer y el primer compartimento.'},
+  {id:'oposicion_pulgar',nombre:'Oposición del pulgar',familia:'Pulgar',
+   detalle:'Articulación carpometacarpiana del pulgar, con MCF e IF acompañando.',
+   joints:[{c:'cmc_pulgar',eje:'flex',g:34},{c:'cmc_pulgar',eje:'abd',g:26},{c:'mcp_pulgar',eje:'flex',g:22},{c:'ip_pulgar',eje:'flex',g:26}],
+   huesos:['hueso_metacarpiano_1','hueso_falange_proximal_pulgar','hueso_falange_distal_pulgar'],
+   articulaciones:['articulacion_carpometacarpiana_1','articulacion_metacarpofalangica_pulgar','articulacion_interfalangica_pulgar'],
+   musculos:['musculo_oponente_pulgar','musculo_abductor_corto_pulgar','musculo_flexor_corto_pulgar','musculo_aductor_pulgar_oblicuo'],
+   tendones:['tendon_flexor_largo_pulgar','tendon_abductor_largo_pulgar'],
+   estables:'El trapecio y el resto del carpo permanecen fijos; la oposición ocurre en la silla de montar.'},
+  {id:'reposicion_pulgar',nombre:'Reposición del pulgar',familia:'Pulgar',
+   detalle:'Retorno del primer rayo desde la oposición a la posición anatómica.',
+   joints:[{c:'cmc_pulgar',eje:'flex',g:-30},{c:'cmc_pulgar',eje:'abd',g:-24},{c:'mcp_pulgar',eje:'flex',g:-18},{c:'ip_pulgar',eje:'flex',g:-20}],
+   huesos:['hueso_metacarpiano_1','hueso_falange_proximal_pulgar','hueso_falange_distal_pulgar'],
+   articulaciones:['articulacion_carpometacarpiana_1','articulacion_metacarpofalangica_pulgar','articulacion_interfalangica_pulgar'],
+   musculos:['musculo_epl','musculo_apl','musculo_extensor_corto_pulgar'],
+   tendones:['tendon_extensor_largo_pulgar','tendon_abductor_largo_pulgar'],
+   estables:'El primer metacarpiano vuelve a su posición; el trapecio no cambia.'},
+  {id:'flexion_muneca',nombre:'Flexión de la muñeca',familia:'Muñeca',
+   detalle:'Articulaciones radiocarpiana y mediocarpiana.',
+   joints:[{c:'muneca',eje:'flex',g:58}],
+   huesos:H_CARPO.concat(idsDe(['hueso_metacarpiano_'])),
+   articulaciones:['articulacion_radiocarpiana','articulacion_mediocarpiana'],
+   musculos:['musculo_fcr','musculo_fcu','musculo_pl'],
+   tendones:['tendon_flexor_radial_carpo','tendon_flexor_ulnar_carpo','tendon_palmar_largo'],
+   estables:'Radio y ulna no se desplazan; el retináculo flexor mantiene los tendones en el túnel carpiano.'},
+  {id:'extension_muneca',nombre:'Extensión de la muñeca',familia:'Muñeca',
+   detalle:'Articulaciones radiocarpiana y mediocarpiana.',
+   joints:[{c:'muneca',eje:'flex',g:-52}],
+   huesos:H_CARPO.concat(idsDe(['hueso_metacarpiano_'])),
+   articulaciones:['articulacion_radiocarpiana','articulacion_mediocarpiana'],
+   musculos:['musculo_ecrl','musculo_ecrb','musculo_ecu','musculo_ed'],
+   tendones:idsDe(['tendon_extensor_dedos_','tendon_extensor_radial']),
+   estables:'La ulna permanece estable; el retináculo extensor guía los tendones dorsales.'},
+  {id:'desviacion_radial',nombre:'Desviación radial de la muñeca',familia:'Muñeca',
+   detalle:'Radiocarpiana y mediocarpiana con deslizamiento intercarpiano.',
+   joints:[{c:'muneca',eje:'abd',g:24}],
+   huesos:H_CARPO.concat(idsDe(['hueso_metacarpiano_'])),
+   articulaciones:['articulacion_radiocarpiana','articulacion_mediocarpiana','articulacion_intercarpiana'],
+   musculos:['musculo_fcr','musculo_ecrl','musculo_abductor_largo_pulgar'],
+   tendones:['tendon_flexor_radial_carpo','tendon_abductor_largo_pulgar'],
+   estables:'La ulna no acompaña el movimiento; el escafoides se extiende y el semilunar sigue al radio.'},
+  {id:'desviacion_cubital',nombre:'Desviación cubital de la muñeca',familia:'Muñeca',
+   detalle:'Radiocarpiana y mediocarpiana con deslizamiento intercarpiano.',
+   joints:[{c:'muneca',eje:'abd',g:-30}],
+   huesos:H_CARPO.concat(idsDe(['hueso_metacarpiano_'])),
+   articulaciones:['articulacion_radiocarpiana','articulacion_mediocarpiana','articulacion_intercarpiana'],
+   musculos:['musculo_fcu','musculo_ecu'],
+   tendones:['tendon_flexor_ulnar_carpo','tendon_extensor_ulnar_carpo'],
+   estables:'El radio permanece estable; el piramidal se traslada y el pisiforme acompaña al carpo.'}
+];
+
+/* ---------------- API v2 ---------------- */
+const suave=t=>t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+const capaDe=s=>s.prof;
+TOR.movimientos=MOV;
+TOR.carriers=CARMAP;
+TOR.seleccion=new Set();
+TOR.acento=0x56D6FF;
+TOR.fondoOpacidad=0.34;
+TOR._capa=1;
+TOR.movimiento=null;
+TOR._t=0;
+TOR.porId=function(id){return EST.find(e=>e.id===id);};
+TOR._base=function(){
+  EST.forEach(s=>{
+    const vis=!this._ocultos.has(s.id)&&capaDe(s)>=this._capa;
+    s.meshes.forEach(m=>{m.visible=vis;});
+    s.mat.emissive.setHex(0x000000);
+    s.mat.emissiveIntensity=0;
+    s.mat.opacity=s.baseO;s.mat.transparent=s.baseT;s.mat.depthWrite=s.baseDW;
+  });
+};
+TOR._aplicar=function(){
+  this._base();
+  if(!this.seleccion.size)return;
+  EST.forEach(s=>{
+    if(this._ocultos.has(s.id)||capaDe(s)<this._capa)return;
+    if(this.seleccion.has(s.id)){
+      s.mat.emissive.setHex(this.acento);
+      s.mat.emissiveIntensity=0.55;
+    }else{
+      s.mat.transparent=true;
+      s.mat.opacity=this.fondoOpacidad*s.baseO;
+      s.mat.depthWrite=false;
+    }
+  });
+};
+TOR.seleccionar=function(id){
+  const ya=this.seleccion.size===1&&this.seleccion.has(id);
+  this.seleccion.clear();
+  if(!ya)this.seleccion.add(id);
+  this._aplicar();return this.seleccion;
+};
+TOR.alternarSeleccion=function(id){
+  if(this.seleccion.has(id))this.seleccion.delete(id);else this.seleccion.add(id);
+  this._aplicar();
+};
+TOR.seleccionarVarios=function(ids){this.seleccion=new Set(ids);this._aplicar();};
+TOR.limpiarSeleccion=function(){this.seleccion.clear();this._aplicar();};
+TOR.primeraSeleccion=function(){return this.seleccion.size?this.porId([...this.seleccion][0]):null;};
+TOR.referenciasDe=function(id){
+  const s=this.porId(id);
+  if(!s||!s.dig)return [];
+  const k=CLAVE_DIG[s.dig]||'';
+  if(!k)return [];
+  return EST.filter(x=>x.col==='HUESOS'&&x.id.indexOf(k)>=0).map(x=>x.id);
+};
+TOR.ocultar=function(id,b){
+  if(b)this._ocultos.add(id);else this._ocultos.delete(id);
+  this._aplicar();
+};
+TOR.alternar=function(id){this.ocultar(id,this._ocultos.has(id)?false:true);};
+TOR.aislarEstructura=function(id){
+  this._ocultos=new Set(EST.filter(e=>e.id!==id).map(e=>e.id));
+  this.seleccion=new Set([id]);
+  this._aplicar();
+};
+TOR.aislarConReferencias=function(id){
+  const refs=this.referenciasDe(id);
+  const keep=new Set([id].concat(refs));
+  this._ocultos=new Set(EST.filter(e=>!keep.has(e.id)).map(e=>e.id));
+  this.seleccion=new Set([id]);
+  this._aplicar();
+};
+TOR.aislarParticipantes=function(movId){
+  const m=MOV.find(x=>x.id===movId);if(!m)return;
+  const keep=new Set([].concat(m.musculos,m.tendones,m.articulaciones,m.huesos));
+  this._ocultos=new Set(EST.filter(e=>!keep.has(e.id)).map(e=>e.id));
+  this.seleccion=new Set(m.tendones.length?[m.tendones[0]]:[]);
+  this._aplicar();
+};
+TOR.aislarSistema=function(sis){
+  this._ocultos=new Set(EST.filter(e=>e.sis!==sis).map(e=>e.id));
+  this.seleccion.clear();this._aplicar();
+};
+TOR.aislarColeccion=function(col){
+  this._ocultos=new Set(EST.filter(e=>e.col!==col).map(e=>e.id));
+  this.seleccion.clear();this._aplicar();
+};
+TOR.ocultarColeccion=function(col,b){
+  EST.forEach(e=>{if(e.col===col){if(b)this._ocultos.add(e.id);else this._ocultos.delete(e.id);}});
+  this._aplicar();
+};
+TOR.mostrarTodo=function(){this._ocultos=new Set();this.seleccion.clear();this._capa=1;this._aplicar();};
+TOR.capa=function(n){this._capa=n;this._aplicar();};
+TOR.opacidadFondo=function(v){this.fondoOpacidad=v;this._aplicar();};
+TOR.grupos=function(){const out={};EST.forEach(e=>{(out[e.col]=out[e.col]||[]).push(e);});return out;};
+TOR.conteo=function(){
+  let vis=0,ocu=0;
+  EST.forEach(e=>{ if(this._ocultos.has(e.id)||capaDe(e)<this._capa)ocu++; else vis++; });
+  return {total:EST.length,visibles:vis,ocultos:ocu};
+};
+TOR.resetPose=function(){
+  CAR.forEach(c=>{c.grupo.quaternion.identity();});
+};
+TOR.pose=function(movId,t){
+  this.resetPose();
+  const m=MOV.find(x=>x.id===movId);
+  if(!m)return;
+  const k=suave(Math.max(0,Math.min(1,t)));
+  const q={};
+  m.joints.forEach(o=>{
+    const c=CARMAP[o.c];if(!c)return;
+    const eje=o.eje==='flex'?c.sd:(o.eje==='abd'?c.vl:c.ax);
+    const qq=new THREE.Quaternion().setFromAxisAngle(eje,THREE.MathUtils.degToRad(o.g)*k);
+    if(!q[o.c])q[o.c]=new THREE.Quaternion();
+    q[o.c].multiply(qq);
+  });
+  Object.keys(q).forEach(c=>{CARMAP[c].grupo.quaternion.copy(q[c]);});
+  this.movimiento=movId;this._t=t;
+};
+TOR.estructurasDeMovimiento=function(movId){
+  const m=MOV.find(x=>x.id===movId);
+  if(!m)return [];
+  const ids=new Set([].concat(m.musculos,m.tendones,m.articulaciones,m.huesos));
+  return EST.filter(e=>ids.has(e.id));
+};
+TOR._aplicar();
 window.THREE = THREE;
 window.TOR = TOR;
 window.dispatchEvent(new Event("tor-model-ready"));
