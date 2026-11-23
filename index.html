@@ -372,6 +372,95 @@
             background: var(--primary-light);
         }
 
+        /* Visor anatómico TOR: ocupa el espacio de la imagen de portada. */
+        .tor-hand-view {
+            position: relative;
+            width: 100%;
+            height: 310px;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 42%, #ffffff 0%, #edf6fc 72%, #e4f0f8 100%);
+            touch-action: pan-y;
+        }
+
+        .tor-hand-view canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            outline: none;
+        }
+
+        .tor-view-status {
+            position: absolute;
+            left: 12px;
+            bottom: 12px;
+            z-index: 2;
+            max-width: calc(100% - 24px);
+            padding: 6px 10px;
+            border: 1px solid rgba(220, 233, 243, .9);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, .88);
+            color: var(--muted);
+            font-size: 10px;
+            line-height: 1.4;
+            pointer-events: none;
+        }
+
+        .tor-view-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 16px;
+            border-top: 1px solid var(--border);
+            background: #fbfdff;
+        }
+
+        .tor-view-controls select,
+        .tor-view-controls button {
+            min-width: 0;
+            max-width: 100%;
+            padding: 7px 9px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: white;
+            color: var(--text);
+            font: 600 10px var(--font);
+        }
+
+        .tor-view-controls select {
+            flex: 1 1 125px;
+        }
+
+        .tor-view-controls button {
+            cursor: pointer;
+        }
+
+        .tor-view-controls button:hover {
+            border-color: var(--secondary);
+            color: var(--primary);
+        }
+
+        .tor-motion-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0 16px 12px;
+            background: #fbfdff;
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .tor-motion-progress input {
+            flex: 1;
+            min-width: 70px;
+            accent-color: var(--primary);
+        }
+
+        @media (max-width: 520px) {
+            .tor-hand-view { height: 270px; }
+            .tor-view-controls { padding: 9px 12px; }
+        }
+
         .anatomy-caption {
             display: flex;
             flex-direction: column;
@@ -1056,22 +1145,39 @@
                         </div>
 
 
-                        <!-- Imagen provisional de portada -->
-
-                        <img
-                            class="anatomy-image"
-                            src="https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=1000&q=85"
-                            alt="Imagen médica de anatomía"
-                            loading="eager"
+                        <!-- Visor anatómico 3D TOR integrado en el espacio visual existente -->
+                        <div
+                            class="tor-hand-view"
+                            id="tor-hand-view"
+                            role="img"
+                            aria-label="Modelo anatómico tridimensional de la mano. Arrastra para rotar y usa la rueda para acercar."
                         >
+                            <div class="tor-view-status" id="tor-view-status" role="status">
+                                Preparando motor anatómico 3D…
+                            </div>
+                        </div>
+
+                        <div class="tor-view-controls" aria-label="Controles del modelo anatómico">
+                            <select id="tor-system" aria-label="Aislar sistema anatómico">
+                                <option value="">Todos los sistemas</option>
+                            </select>
+                            <select id="tor-movement" aria-label="Seleccionar movimiento">
+                                <option value="">Sin movimiento</option>
+                            </select>
+                            <button type="button" id="tor-reset-view">Restablecer</button>
+                        </div>
+                        <label class="tor-motion-progress" for="tor-motion-range">
+                            Movimiento
+                            <input id="tor-motion-range" type="range" min="0" max="100" value="0" disabled>
+                        </label>
 
 
                         <div class="anatomy-caption">
 
-                            <strong>Conocimiento anatómico</strong>
+                            <strong id="tor-selected-name">Modelo anatómico de la mano</strong>
 
-                            <span>
-                                La base del aprendizaje funcional
+                            <span id="tor-selected-meta">
+                                Arrastra para rotar · rueda para acercar · haz clic en una estructura para seleccionarla
                             </span>
 
                         </div>
@@ -1181,7 +1287,7 @@
                     <!-- MÓDULO 1 -->
 
                     <a
-                        href="modulos/mano/index.html"
+                        href="modulos/mano.html"
                         class="module-card"
                     >
 
@@ -1703,6 +1809,268 @@
             `© ${new Date().getFullYear()} TO Study. Plataforma educativa.`;
 
 
+    </script>
+
+    <!-- Three.js r160 y módulos oficiales requeridos por el motor TOR. -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+
+    <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+    import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+    import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
+
+    (() => {
+        "use strict";
+
+        const box = document.getElementById("tor-hand-view");
+        const status = document.getElementById("tor-view-status");
+        const systemSelect = document.getElementById("tor-system");
+        const movementSelect = document.getElementById("tor-movement");
+        const movementRange = document.getElementById("tor-motion-range");
+        const resetButton = document.getElementById("tor-reset-view");
+        const selectedName = document.getElementById("tor-selected-name");
+        const selectedMeta = document.getElementById("tor-selected-meta");
+
+        let renderer, scene, camera, controls, pivot, mirror;
+        let tor = null;
+        let resizeObserver = null;
+        let animationFrame = 0;
+
+        const setStatus = message => {
+            if (status) status.textContent = message;
+        };
+
+        function resize() {
+            if (!renderer || !camera || !box) return;
+            const width = box.clientWidth;
+            const height = box.clientHeight;
+            if (!width || !height) return;
+            renderer.setSize(width, height, false);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        }
+
+        function describeSelection(id) {
+            const item = tor && tor.porId(id);
+            if (!item) {
+                selectedName.textContent = "Modelo anatómico de la mano";
+                selectedMeta.textContent = "Arrastra para rotar · rueda para acercar · haz clic en una estructura";
+                return;
+            }
+            selectedName.textContent = item.nombre || id;
+            const details = [item.latin, item.region, item.sis].filter(Boolean);
+            selectedMeta.textContent = details.join(" · ") || "Estructura anatómica seleccionada";
+        }
+
+        function connectApi() {
+            systemSelect.innerHTML = '<option value="">Todos los sistemas</option>';
+            (tor.sistemas || []).forEach(system => {
+                const option = document.createElement("option");
+                option.value = system.id;
+                option.textContent = system.nombre;
+                systemSelect.appendChild(option);
+            });
+
+            movementSelect.innerHTML = '<option value="">Sin movimiento</option>';
+            (tor.movimientos || []).forEach(movement => {
+                const option = document.createElement("option");
+                option.value = movement.id;
+                option.textContent = movement.nombre;
+                movementSelect.appendChild(option);
+            });
+
+            systemSelect.addEventListener("change", () => {
+                if (systemSelect.value) tor.aislarSistema(systemSelect.value);
+                else tor.mostrarTodo();
+                describeSelection(null);
+            });
+
+            movementSelect.addEventListener("change", () => {
+                const id = movementSelect.value;
+                movementRange.disabled = !id;
+                if (!id) {
+                    tor.resetPose();
+                    return;
+                }
+                tor.pose(id, Number(movementRange.value) / 100);
+            });
+
+            movementRange.addEventListener("input", () => {
+                if (movementSelect.value) {
+                    tor.pose(movementSelect.value, Number(movementRange.value) / 100);
+                }
+            });
+
+            resetButton.addEventListener("click", () => {
+                tor.mostrarTodo();
+                tor.resetPose();
+                systemSelect.value = "";
+                movementSelect.value = "";
+                movementRange.value = "0";
+                movementRange.disabled = true;
+                describeSelection(null);
+                controls.reset();
+            });
+        }
+
+        function connectPicking() {
+            const raycaster = new THREE.Raycaster();
+            const pointer = new THREE.Vector2();
+            let down = null;
+
+            renderer.domElement.addEventListener("pointerdown", event => {
+                down = { x: event.clientX, y: event.clientY };
+            });
+
+            renderer.domElement.addEventListener("pointerup", event => {
+                if (!down || Math.hypot(event.clientX - down.x, event.clientY - down.y) > 5) {
+                    down = null;
+                    return;
+                }
+                down = null;
+                const rect = renderer.domElement.getBoundingClientRect();
+                if (!rect.width || !rect.height) return;
+                pointer.set(
+                    ((event.clientX - rect.left) / rect.width) * 2 - 1,
+                    -((event.clientY - rect.top) / rect.height) * 2 + 1
+                );
+                raycaster.setFromCamera(pointer, camera);
+                const hit = raycaster.intersectObject(tor.root, true).find(result => {
+                    let node = result.object;
+                    while (node && !node.userData.id) node = node.parent;
+                    return node && tor.porId(node.userData.id);
+                });
+                if (!hit) {
+                    tor.limpiarSeleccion();
+                    describeSelection(null);
+                    return;
+                }
+                let node = hit.object;
+                while (node && !node.userData.id) node = node.parent;
+                const id = node && node.userData.id;
+                if (id) {
+                    tor.seleccionar(id);
+                    describeSelection(id);
+                }
+            });
+        }
+
+        function renderLoop() {
+            animationFrame = requestAnimationFrame(renderLoop);
+            if (controls) controls.update();
+            if (renderer && scene && camera) renderer.render(scene, camera);
+        }
+
+        async function initialize() {
+            try {
+                setStatus("Cargando dependencias de Three.js…");
+
+                // El motor existente es un script clásico y consume estas dependencias globales.
+                window.THREE = THREE;
+                window.mergeGeometries = mergeGeometries;
+                window.GLTFExporter = GLTFExporter;
+
+                setStatus("Generando geometrías anatómicas procedurales…");
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement("script");
+                    script.src = new URL("modelo3d/tor-engine.js", document.baseURI).href;
+                    script.onload = resolve;
+                    script.onerror = () => reject(new Error("No se pudo cargar modelo3d/tor-engine.js"));
+                    document.head.appendChild(script);
+                });
+
+                if (typeof TOR === "undefined" || !TOR.root || !TOR.estructuras) {
+                    throw new Error("El motor se cargó, pero no expuso la API TOR esperada.");
+                }
+                tor = TOR;
+                window.TOR = tor;
+
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0xeef6fb);
+
+                camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+                camera.position.set(0, 0.2, 12);
+
+                scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 1.0));
+                const keyLight = new THREE.DirectionalLight(0xffffff, 1.15);
+                keyLight.position.set(4, 7, 8);
+                scene.add(keyLight);
+                const fillLight = new THREE.DirectionalLight(0xffffff, 0.5);
+                fillLight.position.set(-5, -3, -6);
+                scene.add(fillLight);
+
+                pivot = new THREE.Group();
+                pivot.rotation.z = Math.PI;
+                mirror = new THREE.Group();
+                mirror.scale.x = -1;
+                mirror.add(tor.root);
+                pivot.add(mirror);
+                scene.add(pivot);
+
+                // Encuadra el modelo real generado por el motor, sin reemplazar sus geometrías.
+                const bounds = new THREE.Box3().setFromObject(tor.root);
+                const center = new THREE.Vector3();
+                const size = new THREE.Vector3();
+                bounds.getCenter(center);
+                bounds.getSize(size);
+                tor.root.position.sub(center);
+                const maxDimension = Math.max(size.x, size.y, size.z, 1);
+                camera.position.set(0, 0.15, maxDimension * 2.7);
+                camera.near = Math.max(0.01, maxDimension / 100);
+                camera.far = maxDimension * 20;
+                camera.updateProjectionMatrix();
+
+                renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+                renderer.outputColorSpace = THREE.SRGBColorSpace;
+                renderer.domElement.setAttribute("aria-label", "Modelo 3D anatómico interactivo de la mano");
+                box.replaceChildren(renderer.domElement);
+
+                controls = new OrbitControls(camera, renderer.domElement);
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.06;
+                controls.minDistance = maxDimension * 0.65;
+                controls.maxDistance = maxDimension * 6;
+                controls.target.set(0, 0, 0);
+                controls.update();
+
+                resizeObserver = new ResizeObserver(resize);
+                resizeObserver.observe(box);
+                window.addEventListener("resize", resize, { passive: true });
+                resize();
+
+                connectApi();
+                connectPicking();
+                tor.mostrarTodo();
+                tor.resetPose();
+                renderLoop();
+
+                const count = tor.conteo ? tor.conteo() : { total: tor.estructuras.length };
+                setStatus("Motor TOR activo · " + count.total + " estructuras · arrastra para rotar y usa la rueda para zoom");
+                describeSelection(null);
+            } catch (error) {
+                console.error("[TOR 3D]", error);
+                setStatus("No se pudo iniciar el modelo 3D: " + error.message);
+            }
+        }
+
+        initialize();
+
+        window.addEventListener("pagehide", () => {
+            if (animationFrame) cancelAnimationFrame(animationFrame);
+            if (resizeObserver) resizeObserver.disconnect();
+            if (controls) controls.dispose();
+            if (renderer) renderer.dispose();
+        }, { once: true });
+    })();
     </script>
 
 </body>
