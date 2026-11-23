@@ -32,7 +32,7 @@ function texRayas(){
   t.colorSpace=THREE.SRGBColorSpace;return t;
 }
 function texHueso(){
-  const c=document.createElement('canvas');c.width=c.height=256;const x=c.getContext('2d');
+  const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d');
   x.fillStyle='#ffffff';x.fillRect(0,0,256,256);
   for(let i=0;i<120;i++){
     const r=4+Math.random()*26,cx=Math.random()*256,cy=Math.random()*256;
