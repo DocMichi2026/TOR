@@ -35,6 +35,45 @@ h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{marg
 @media(max-width:720px){.layout{grid-template-columns:1fr}.nav{position:static;max-height:none}.topic-grid{display:grid;grid-template-columns:1fr 1fr}.right{grid-column:auto;display:block}.right-section{border-right:0}#stage{height:440px;min-height:360px}.viewer-head{align-items:flex-start;flex-direction:column}.intro{align-items:flex-start;flex-direction:column}.foot{padding:0 16px}}
 
 .study-game{padding:13px 15px;border-bottom:1px solid var(--line)}.study-game h3{font-size:12px;margin:0 0 8px}.study-game p{font-size:11px;color:#526d7a;margin:6px 0}.study-actions{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}.study-card{background:#f4f8f9;border-radius:9px;padding:9px;margin:7px 0}.study-card b{display:block;font-size:10px;color:#718692;text-transform:uppercase;letter-spacing:.06em}.study-card span{font-size:11px;color:#29495b}.game-prompt{font-size:13px;font-weight:800;color:#075e67;background:#e8f3f3;padding:10px;border-radius:9px;margin:8px 0}.game-status{font-size:11px;min-height:32px;color:#617784}.game-status.good{color:#087e53;font-weight:800}.game-status.bad{color:#a64c35;font-weight:800}
+
+/* ===== Rediseño pedagógico TOR · interfaz clara y accesible ===== */
+:root{--ink:#182f40;--muted:#667d8b;--line:#e2e9ed;--paper:#f5f7f8;--teal:#087f83;--deep:#153448;--soft:#eaf5f4;--gold:#e4b45e}
+body{background:#f4f6f7;color:var(--ink);font-family:Inter,"Segoe UI",system-ui,sans-serif;line-height:1.6}
+.top{background:linear-gradient(115deg,#102b3d 0%,#174b5a 58%,#167b7b 100%);padding:24px clamp(18px,4vw,56px) 30px;position:relative;overflow:hidden}
+.top:after{content:"";position:absolute;width:360px;height:360px;border:1px solid #ffffff18;border-radius:50%;right:5%;top:-230px;box-shadow:0 0 0 35px #ffffff08,0 0 0 75px #ffffff06}
+.topline,h1,.top p{position:relative;z-index:1}.tag{background:#ffffff16;border:1px solid #ffffff28;padding:6px 10px;border-radius:30px;letter-spacing:.08em}
+h1{font-size:clamp(29px,4vw,46px);letter-spacing:-.035em;margin:18px 0 8px}.top p{font-size:14px;max-width:720px;line-height:1.65}
+.wrap{max-width:1740px;margin:25px auto;padding:0 clamp(14px,2.4vw,38px)}
+.intro{background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 17px;margin-bottom:18px;box-shadow:0 4px 18px #18384b08}
+.intro strong{font-size:14px}.intro span{font-size:12px}
+.layout{grid-template-columns:250px minmax(360px,1fr) 330px;gap:18px}
+.panel{border:1px solid #e1e8ec;border-radius:17px;box-shadow:0 8px 28px #1d3a4b0b}
+.nav{padding:17px 13px;top:14px}.panel-title{font-size:10px;letter-spacing:.13em;margin:2px 9px 12px;color:#718692}
+.topic{padding:11px 10px;border-radius:11px;gap:11px;margin:3px 0;transition:background .16s,transform .16s}
+.topic:hover{background:#f2f7f8;transform:translateX(2px)}.topic.active{background:#e8f4f3;box-shadow:inset 3px 0 #0a8585}
+.num{width:29px;height:29px;border-radius:9px;font-size:11px;background:#f0f3f5}.topic.active .num{background:#087e83}
+.topic b{font-size:12px;line-height:1.4}.topic small{font-size:10px;margin-top:4px}
+.viewer{overflow:hidden}.viewer-head{padding:17px 19px;background:#fff}.viewer-head b{font-size:14px}.viewer-head small{font-size:11px;line-height:1.5;margin-top:3px}
+.btn{border-radius:10px;padding:8px 11px;font-size:11px;transition:all .15s}.btn:hover{border-color:#9bbfc0;transform:translateY(-1px)}.btn.primary{box-shadow:0 3px 8px #087e8325}
+#stage{height:610px;background:radial-gradient(ellipse at 50% 42%,#fff 0%,#f0f5f6 58%,#e6eef1 100%)}
+.hint{font-size:10px;background:#ffffffed;box-shadow:0 2px 9px #18384b10;padding:8px 11px}
+.stage-tools{padding:13px 17px;background:#fbfcfc}.stage-tools label{font-size:11px}
+.topic-info{padding:19px 19px 17px;background:linear-gradient(180deg,#fff,#fbfdfd)}
+.eyebrow{font-size:10px;letter-spacing:.13em}.topic-info h2{font-size:21px;letter-spacing:-.02em;margin:7px 0 9px}.topic-info p{font-size:12px;line-height:1.7}
+.callout{margin-top:13px;padding:12px 13px;background:#eff7f6;border-left:3px solid #159195;font-size:11px;line-height:1.65}
+.right-section,.study-game{padding:16px 18px}.right-section h3,.study-game h3{font-size:12px;letter-spacing:.01em;margin-bottom:11px}
+.study-card{background:#f6f8f9;border:1px solid #edf1f3;border-radius:11px;padding:11px 12px;margin:8px 0}
+.study-card b{font-size:9px;letter-spacing:.1em;color:#0a7b7e;margin-bottom:4px}.study-card span{font-size:11px;line-height:1.65;display:block}
+.study-card strong{color:#284c5d}.study-game{background:#fff}
+.game-prompt{font-size:12px;line-height:1.5;background:#edf6f5;border:1px solid #dcefed;color:#075d62;padding:12px;border-radius:11px}
+.game-status{font-size:11px;line-height:1.6;margin:8px 1px;min-height:34px}
+.structure-list{max-height:280px}.structure{padding:9px 8px;font-size:11px;border-radius:9px}.structure:hover,.structure.selected{background:#eaf4f3}
+.detail-name{font-size:16px}.field{margin:11px 0}.field p{font-size:11px;line-height:1.6}
+.movement-box{padding:14px 18px;background:#f7fafb}.movement-box select{padding:10px;font-size:12px}
+.foot{font-size:10px;line-height:1.6}
+@media(max-width:1150px){.layout{grid-template-columns:225px minmax(300px,1fr)}#stage{height:540px}}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.nav{padding:13px}.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}.topic{padding:9px 7px}.topic b{font-size:11px}#stage{height:430px;min-height:350px}.right{display:block}.viewer-head{flex-direction:column}.top{padding:20px 18px 24px}}
+
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
@@ -45,11 +84,11 @@ h1{font-size:clamp(26px,4vw,42px);line-height:1.12;margin:14px 0 7px}.top p{marg
  <p>Explora los huesos, músculos, tendones, vainas, poleas, nervios, vasos y movimientos de la mano desde trece temas de estudio.</p>
 </header>
 <main class="wrap">
- <div class="intro"><strong>Selecciona un tema y explora sus estructuras en 3D.</strong><span>Modelo didáctico · mano derecha · vista palmar y dorsal</span></div>
+ <div class="intro"><strong>Tu ruta de aprendizaje: comprende → observa → identifica → practica.</strong><span>13 lecciones · modelo 3D interactivo · evaluación práctica</span></div>
  <div class="layout">
   <aside class="panel nav"><div class="panel-title">Temario de mano</div><div id="topicList" class="topic-grid"></div></aside>
   <section class="panel viewer">
-   <div class="viewer-head"><div><b id="viewerTitle">Modelo anatómico completo</b><small>Arrastra para rotar · rueda para acercar · selecciona una estructura para estudiarla</small></div>
+   <div class="viewer-head"><div><b id="viewerTitle">Modelo anatómico completo</b><small>1. Gira la mano · 2. Elige una estructura · 3. Lee su función y relaciones</small></div>
     <div class="actions"><button class="btn" id="palmar">Palmar</button><button class="btn" id="dorsal">Dorsal</button><button class="btn" id="reset">Restablecer</button><button class="btn primary" id="export">Exportar GLB</button></div>
    </div>
    <div id="stage"><div class="loading" id="loading">Construyendo el modelo anatómico…</div><div class="hint">Girar: arrastrar · Zoom: rueda · Seleccionar: clic</div></div>
@@ -127,8 +166,24 @@ function showTopic(index){
 }
 function renderStudyGuide(){
  const guide=document.getElementById("studyGuide"),t=topics[active];guide.innerHTML="";
- const cards=[["Objetivo",t.desc],["Clave anatómica",t.note],["Estructuras para reconocer",visibleStructures.slice(0,8).map(s=>s.nombre).join(" · ")||"No hay estructuras modeladas en este tema."]];
- cards.forEach(([label,value])=>{const d=document.createElement("div");d.className="study-card";const b=document.createElement("b");b.textContent=label;const span=document.createElement("span");span.textContent=value;d.append(b,span);guide.appendChild(d);});
+ const lessons=[
+  {idea:"¿Qué vas a aprender?",body:"Reconocer los ocho huesos del carpo y distinguirlos de metacarpianos y falanges.",map:"Empieza por la muñeca: fila proximal (escafoides, semilunar, piramidal y pisiforme); fila distal (trapecio, trapezoide, grande y ganchoso).",check:"Recuerda: el pulgar tiene dos falanges; los otros dedos tienen tres.",task:"Localiza primero el escafoides y después el ganchoso."},
+  {idea:"¿Qué vas a aprender?",body:"Comprender qué músculos generan movimiento y cómo sus tendones transmiten la fuerza.",map:"Los extrínsecos nacen en el antebrazo y llegan a la mano; los intrínsecos están dentro de la mano y afinan los movimientos.",check:"Piensa en los músculos como motores y en los tendones como cables que transmiten la fuerza.",task:"Compara un músculo extrínseco con uno intrínseco en el modelo."},
+  {idea:"¿Qué vas a aprender?",body:"Diferenciar los grupos tenares, hipotenares, lumbricales e interóseos y relacionarlos con los músculos del antebrazo.",map:"Tenar = base del pulgar; hipotenar = base del meñique; lumbricales = palma; interóseos = entre metacarpianos.",check:"Los lumbricales e interóseos ayudan a flexionar las metacarpofalángicas y extender las interfalángicas.",task:"Encuentra un músculo intrínseco y explica qué movimiento ayuda a producir."},
+  {idea:"¿Qué vas a aprender?",body:"Seguir el recorrido de los tendones flexores y entender cómo doblan los dedos.",map:"El flexor superficial (FDS) se inserta en la falange media; el profundo (FDP) llega a la falange distal. El flexor largo del pulgar llega a su falange distal.",check:"FDS = flexiona principalmente la interfalángica proximal; FDP = flexiona la interfalángica distal.",task:"Localiza un tendón flexor y sigue su recorrido hacia el dedo."},
+  {idea:"¿Qué vas a aprender?",body:"Reconocer los tendones extensores en el dorso y comprender cómo enderezan los dedos.",map:"Los tendones extensores recorren el dorso de la mano y se continúan con la expansión extensora de cada dedo.",check:"La extensión de los dedos no depende de un único tendón: participan expansiones y músculos intrínsecos.",task:"Cambia a vista dorsal y localiza un tendón extensor."},
+  {idea:"¿Qué vas a aprender?",body:"Entender por qué los tendones necesitan túneles y revestimientos para deslizarse con poca fricción.",map:"La vaina fibrosa mantiene el tendón cerca del hueso; la sinovial facilita el deslizamiento dentro de ese túnel.",check:"Si el tendón pierde su guía o se inflama su revestimiento, el movimiento puede volverse doloroso o limitado.",task:"Activa la capa de vainas y observa su relación con los tendones."},
+  {idea:"¿Qué vas a aprender?",body:"Identificar las poleas que mantienen los tendones flexores cerca de las falanges.",map:"Las poleas anulares A1–A5 y cruciformes forman un sistema de retención a lo largo de los dedos.",check:"A2 y A4 son claves para evitar que el tendón se separe del hueso (efecto cuerda de arco).",task:"Busca la polea A1 y luego la A2 de un dedo."},
+  {idea:"¿Qué vas a aprender?",body:"Comprender cómo se reparte la fuerza extensora en la parte dorsal de los dedos.",map:"La banda central se dirige a la falange media; las bandas laterales se unen distalmente para formar el tendón terminal.",check:"Una lesión de la banda central puede producir deformidad en boutonnière; una lesión terminal puede causar dedo en martillo.",task:"Localiza la banda central y compárala con las bandas laterales."},
+  {idea:"¿Qué vas a aprender?",body:"Distinguir los territorios principales de los nervios mediano, ulnar y radial.",map:"Mediano: palma radial y eminencia tenar; ulnar: músculos intrínsecos y borde cubital; radial superficial: sensibilidad dorsal radial.",check:"No confundas territorio sensitivo con territorio motor: no son exactamente iguales.",task:"Selecciona un nervio y revisa qué estructuras y regiones se relacionan con él."},
+  {idea:"¿Qué vas a aprender?",body:"Seguir la llegada de sangre a la palma y comprender la conexión entre los arcos arteriales.",map:"La arteria radial contribuye sobre todo al arco palmar profundo; la ulnar contribuye principalmente al arco superficial.",check:"Los arcos se comunican y originan ramas que llevan sangre hacia los dedos.",task:"Cambia entre vista palmar y dorsal y localiza una arteria."},
+  {idea:"¿Qué vas a aprender?",body:"Relacionar la forma de las articulaciones con los movimientos posibles de la mano.",map:"La oposición combina abducción, flexión y rotación medial del pulgar en la carpometacarpiana.",check:"La pinza y la prensión requieren coordinación, estabilidad y movilidad; no son movimientos aislados.",task:"Prueba flexión, extensión y oposición y observa qué cambia."},
+  {idea:"¿Qué vas a aprender?",body:"Reconocer las articulaciones y los ligamentos que guían y estabilizan la mano.",map:"De proximal a distal: radiocarpiana, intercarpianas, carpometacarpianas, metacarpofalángicas e interfalángicas.",check:"Los ligamentos colaterales estabilizan los lados de las articulaciones; la placa palmar limita la hiperextensión.",task:"Localiza una articulación y busca las estructuras que la estabilizan."},
+  {idea:"¿Qué vas a aprender?",body:"Conectar una alteración funcional con la estructura anatómica que puede estar comprometida.",map:"Dedo en gatillo: polea A1 y tendón flexor; dedo en martillo: tendón extensor terminal; boutonnière: banda central; De Quervain: APL y EPB.",check:"La anatomía ayuda a comprender los mecanismos, pero el diagnóstico requiere evaluación clínica.",task:"Elige una estructura relacionada con una lesión y explica qué función podría alterarse."}
+ ];
+ const l=lessons[active];
+ const cards=[[l.idea,l.body],[ "Cómo orientarte en el modelo",l.map ],["Clave para recordar",l.check],["Tu misión práctica",l.task],["Estructuras disponibles",visibleStructures.slice(0,7).map(s=>s.nombre).join(" · ")||"Este concepto se estudia con la explicación y las estructuras relacionadas."]];
+ cards.forEach(([label,value],i)=>{const d=document.createElement("div");d.className="study-card";const b=document.createElement("b");b.textContent=label;const span=document.createElement("span");span.textContent=value;d.append(b,span);guide.appendChild(d);});
 }
 function renderStructures(){
  const box=document.getElementById("structureList");box.innerHTML="";
