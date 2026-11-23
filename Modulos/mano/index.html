@@ -74,6 +74,9 @@ h1{font-size:clamp(29px,4vw,46px);letter-spacing:-.035em;margin:18px 0 8px}.top 
 @media(max-width:1150px){.layout{grid-template-columns:225px minmax(300px,1fr)}#stage{height:540px}}
 @media(max-width:720px){.layout{grid-template-columns:1fr}.nav{padding:13px}.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px}.topic{padding:9px 7px}.topic b{font-size:11px}#stage{height:430px;min-height:350px}.right{display:block}.viewer-head{flex-direction:column}.top{padding:20px 18px 24px}}
 
+
+/* Demostración guiada por tema */
+.demo-box{padding:15px 18px;background:linear-gradient(180deg,#f5fafb,#edf5f6);border-top:1px solid var(--line)}.demo-head{display:flex;justify-content:space-between;gap:10px;align-items:center}.demo-kicker{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:#078187;font-weight:850}.demo-box h3{font-size:13px;margin:3px 0 5px}.demo-box p{font-size:11px;line-height:1.6;color:#526d7a;margin:5px 0 10px}.demo-controls{display:flex;gap:7px;flex-wrap:wrap}.demo-step{font-size:10px;color:#718692;margin-top:9px;min-height:16px}.demo-box .btn{font-size:10px}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
@@ -93,6 +96,8 @@ h1{font-size:clamp(29px,4vw,46px);letter-spacing:-.035em;margin:18px 0 8px}.top 
    </div>
    <div id="stage"><div class="loading" id="loading">Construyendo el modelo anatómico…</div><div class="hint">Girar: arrastrar · Zoom: rueda · Seleccionar: clic</div></div>
    <div class="stage-tools"><button class="btn" id="showAll">Mostrar todo</button><label for="depth">Profundidad anatómica</label><input id="depth" type="range" min="1" max="3" step="1" value="1"><span id="depthLabel" style="font-size:10px;color:#718692">Todas las capas</span></div>
+
+   <div class="demo-box" id="demoBox"><div class="demo-head"><div><div class="demo-kicker">Laboratorio práctico</div><h3 id="demoTitle">Observa cómo funciona</h3></div><span style="font-size:10px;color:#82949d">Demostración 3D</span></div><p id="demoText">Una demostración interactiva adaptada a este tema.</p><div class="demo-controls"><button class="btn primary" id="demoPlay">▶ Ver demostración</button><button class="btn" id="demoReset">Reiniciar vista</button></div><div class="demo-step" id="demoStep">Pulsa para observar el cambio en el modelo.</div></div>
    <div class="movement-box" id="movementBox"><select id="movementSelect"></select><div class="movement-row"><span>Posición inicial</span><b id="movementPct">0 %</b><span>Movimiento</span></div><input id="movementRange" type="range" min="0" max="100" value="0"><p id="movementNote" style="font-size:10px;color:#667d89;margin:7px 0 0"></p></div>
   </section>
   <aside class="panel right">
@@ -151,8 +156,53 @@ TOR.root.rotation.y=.08;
 const ray=new THREE.Raycaster(),pointer=new THREE.Vector2();
 let active=0,visibleStructures=[];
 let gameTarget=null,gameScore=0,gameTries=0,gameSolved=false;
+
+/* Demostraciones didácticas: cada lección prepara una observación distinta del modelo. */
+const demos=[
+ {title:"Reconoce el esqueleto",text:"Gira la mano para comparar la palma y el dorso. La capa ósea queda como protagonista para reconocer carpo, metacarpos y falanges.",step:"Observa las dos filas del carpo y continúa hacia los cinco radios digitales.",ids:s=>s.col==="HUESOS",view:"palmar"},
+ {title:"De músculo a movimiento",text:"Se resaltan los músculos. Después observa una flexión suave para comprender cómo el músculo transmite fuerza a través del tendón.",step:"Compara el vientre muscular con su tendón de inserción.",ids:s=>s.col==="MUSCULOS_EXTRINSECOS"||s.col==="MUSCULOS_INTRINSECOS",move:"flexion_dedos"},
+ {title:"Compara motores largos y cortos",text:"Primero identifica los músculos extrínsecos que llegan desde el antebrazo; luego los intrínsecos situados dentro de la mano.",step:"Los extrínsecos aportan fuerza; los intrínsecos afinan la precisión y la coordinación.",ids:s=>s.col==="MUSCULOS_EXTRINSECOS"||s.col==="MUSCULOS_INTRINSECOS"},
+ {title:"Deslizamiento de los flexores",text:"La mano realiza una flexión lenta. Sigue los tendones flexores mientras pasan por la palma y se dirigen a las falanges.",step:"FDS llega a la falange media; FDP continúa hasta la falange distal.",ids:s=>s.col==="TENDONES_FLEXORES"||s.id.startsWith("musculo_fds")||s.id.startsWith("musculo_fdp")||s.id.startsWith("musculo_fpl"),move:"flexion_dedos"},
+ {title:"Acción del aparato extensor",text:"Observa cómo se enderezan los dedos y cómo los tendones dorsales transmiten la extensión hacia las falanges.",step:"La expansión extensora distribuye la fuerza; no es un cable único y simple.",ids:s=>s.col==="TENDONES_EXTENSORES"||s.id.startsWith("tendon_extensor")||s.id.startsWith("expansion_extensora"),move:"extension_dedos",view:"dorsal"},
+ {title:"Guía y deslizamiento",text:"Se resaltan las vainas que envuelven y guían los tendones. Cambia la profundidad para entender su relación con los planos vecinos.",step:"La vaina fibrosa contiene; el revestimiento sinovial facilita el deslizamiento.",ids:s=>s.id.startsWith("vaina_")||s.id.startsWith("retinaculo")},
+ {title:"Poleas en acción",text:"Mira las poleas anulares y cruciformes resaltadas. Reproduce la flexión para observar el tendón flexor desplazándose bajo el sistema de poleas.",step:"Las poleas A2 y A4 ayudan a mantener el tendón cerca de la falange y evitan el efecto de cuerda de arco. Esta demostración muestra el sistema íntegro, no una rotura.",ids:s=>s.id.startsWith("polea_")||s.id.startsWith("tendon_flexor_"),move:"flexion_dedos",view:"palmar"},
+ {title:"Expansión extensora",text:"La extensión se reproduce lentamente mientras se destacan la banda central, las bandas laterales y el tendón terminal.",step:"La banda central llega a la falange media; las bandas laterales convergen hacia la falange distal.",ids:s=>/expansion_extensora|banda_central|bandas_laterales|tendon_terminal|tendon_extensor/.test(s.id),move:"extension_dedos",view:"dorsal"},
+ {title:"Territorios nerviosos",text:"Aísla los nervios de la mano y sigue sus trayectos. La selección permite estudiar cada estructura sin el resto de capas.",step:"Diferencia la función motora de la distribución sensitiva.",ids:s=>s.sis==="nervioso"},
+ {title:"Ruta de la sangre",text:"Se resaltan arterias y arcos palmares. Observa cómo las ramas se distribuyen hacia los dedos.",step:"Compara el arco superficial y el profundo y recuerda sus contribuciones principales.",ids:s=>s.sis==="vascular",view:"palmar"},
+ {title:"Prueba el movimiento",text:"Selecciona un movimiento y desplaza el control para recorrerlo. Puedes comparar flexión, extensión, oposición y desviaciones de muñeca.",step:"Observa qué articulaciones se mueven y cuáles permanecen estables.",ids:s=>true,move:"flexion_dedos"},
+ {title:"Estabilidad articular",text:"Las articulaciones y ligamentos quedan resaltados. Gira el modelo para observar la relación entre superficies articulares y estabilizadores.",step:"Los ligamentos guían y limitan el movimiento; no producen la fuerza muscular.",ids:s=>s.sis==="articulaciones"||s.sis==="ligamentoso"},
+ {title:"De la estructura a la lesión",text:"Explora las estructuras implicadas en lesiones frecuentes y observa el movimiento que puede verse afectado.",step:"Dedo en gatillo: polea A1 y flexores · dedo en martillo: tendón terminal · boutonnière: banda central · De Quervain: APL y EPB.",ids:s=>/polea_|tendon_flexor_|tendon_extensor|banda_central|musculo_apl|musculo_epb/.test(s.id),move:"flexion_dedos"}
+];
+let demoToken=0;
+function renderDemo(){
+ const d=demos[active];document.getElementById("demoTitle").textContent=d.title;
+ document.getElementById("demoText").textContent=d.text;document.getElementById("demoStep").textContent=d.step;
+ document.getElementById("demoPlay").textContent=d.move?"▶ Ver demostración":"◎ Resaltar estructuras";
+}
+function playDemo(){
+ const d=demos[active],token=++demoToken;
+ const ids=visibleStructures.filter(d.ids).map(s=>s.id);
+ TOR.seleccionarVarios(ids);TOR._aplicar();
+ if(d.view==="palmar"){camera.position.set(0,1.1,8);controls.target.set(0,-.1,0);controls.update();}
+ if(d.view==="dorsal"){camera.position.set(0,1.1,-8);controls.target.set(0,-.1,0);controls.update();}
+ document.getElementById("demoStep").textContent=d.step;
+ if(!d.move){return;}
+ const duration=2600,start=performance.now();
+ function frame(now){
+  if(token!==demoToken)return;
+  const t=Math.min(1,(now-start)/duration);
+  const value=t<.72?(t/.72)*100:((1-t)/.28)*100;
+  TOR.pose(d.move,Math.max(0,Math.min(100,value))/100);
+  if(t<1)requestAnimationFrame(frame);
+  else{TOR.pose(d.move,0);document.getElementById("demoStep").textContent="Demostración terminada. Vuelve a reproducirla o selecciona una estructura para estudiarla.";}
+ }
+ requestAnimationFrame(frame);
+}
+document.getElementById("demoPlay").addEventListener("click",playDemo);
+document.getElementById("demoReset").addEventListener("click",()=>{demoToken++;TOR.resetPose();TOR.limpiarSeleccion();showTopic(active);});
+
 function showTopic(index){
- active=index;const t=topics[index];
+ demoToken++;active=index;const t=topics[index];
  document.querySelectorAll(".topic").forEach((b,i)=>b.classList.toggle("active",i===index));
  document.getElementById("topicKicker").textContent="Tema "+String(index+1).padStart(2,"0")+" / 13";
  document.getElementById("topicTitle").textContent=t.title;document.getElementById("topicDescription").textContent=t.desc;document.getElementById("topicNote").textContent=t.note;
@@ -160,7 +210,7 @@ function showTopic(index){
  document.getElementById("movementBox").classList.toggle("show",!!t.movement);
  TOR._ocultos=new Set(TOR.estructuras.filter(s=>!t.filter(s)).map(s=>s.id));TOR.seleccion.clear();TOR._capa=1;TOR._aplicar();
  visibleStructures=TOR.estructuras.filter(s=>t.filter(s));
- renderStructures();renderDetail(null);renderStudyGuide();
+ renderStructures();renderDetail(null);renderStudyGuide();renderDemo();
  document.getElementById("depth").value="1";document.getElementById("depthLabel").textContent="Todas las capas";
  if(t.movement){const first=movements[0];if(first){document.getElementById("movementSelect").value=first.id;setMovement(first.id,0);}}else{TOR.resetPose();}
 }
